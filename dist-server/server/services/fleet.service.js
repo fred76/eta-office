@@ -1,0 +1,47 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getFleet = getFleet;
+exports.getShipSummary = getShipSummary;
+const client_1 = require("../db/client");
+async function getFleet() {
+    const rows = await client_1.db.query.ships.findMany({
+        with: {
+            rotationLatest: true,
+            mooringLatest: true,
+        },
+        orderBy: (s, { asc }) => asc(s.name),
+    });
+    return rows.map(s => ({
+        id: s.id,
+        name: s.name,
+        imoNumber: s.imoNumber,
+        flag: s.flag,
+        vesselType: s.vesselType,
+        lastSyncAt: s.lastSyncAt,
+        rotation: s.rotationLatest?.data ?? null,
+        mooringRedCount: countMooringRed(s.mooringLatest?.lines),
+    }));
+}
+async function getShipSummary(shipId) {
+    const ship = await client_1.db.query.ships.findFirst({
+        where: (s, { eq }) => eq(s.id, shipId),
+        with: { rotationLatest: true, mooringLatest: true },
+    });
+    if (!ship)
+        return null;
+    return {
+        id: ship.id,
+        name: ship.name,
+        imoNumber: ship.imoNumber,
+        flag: ship.flag,
+        vesselType: ship.vesselType,
+        lastSyncAt: ship.lastSyncAt,
+        rotation: ship.rotationLatest?.data ?? null,
+        mooringRedCount: countMooringRed(ship.mooringLatest?.lines),
+    };
+}
+function countMooringRed(lines) {
+    if (!Array.isArray(lines))
+        return 0;
+    return lines.filter((l) => l?.trafficLight === 'RED').length;
+}

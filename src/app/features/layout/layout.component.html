@@ -1,0 +1,43 @@
+<div class="flex h-screen overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-56 bg-primary text-primary-content flex flex-col shrink-0">
+    <div class="p-4 border-b border-primary-content/20">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">⚓</span>
+        <div>
+          <p class="font-bold text-sm leading-tight">ETA Office</p>
+          <p class="text-xs text-primary-content/60">Fleet management</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-1 p-2 flex-1">
+      <a routerLink="/dashboard" routerLinkActive="bg-primary-content/20"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
+        <span>📊</span> Dashboard
+      </a>
+      <a routerLink="/fleet" routerLinkActive="bg-primary-content/20"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
+        <span>🚢</span> Fleet
+      </a>
+      <a routerLink="/reports" routerLinkActive="bg-primary-content/20"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
+        <span>📈</span> Reports
+      </a>
+    </nav>
+
+    <div class="p-2 border-t border-primary-content/20">
+      <button (click)="auth.logout()"
+              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full hover:bg-primary-content/10 transition-colors">
+        <span>🚪</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 overflow-auto bg-base-100">
+    <router-outlet />
+  </main>
+
+</div>

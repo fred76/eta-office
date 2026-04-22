@@ -1,0 +1,13 @@
+<span class="badge gap-1 text-xs"
+  [class.badge-success]="status() === 'ok'"
+  [class.badge-warning]="status() === 'late'"
+  [class.badge-error]="status() === 'critical'"
+  [class.badge-ghost]="status() === 'never'">
+  <span class="w-2 h-2 rounded-full inline-block"
+    [class.bg-success]="status() === 'ok'"
+    [class.bg-warning]="status() === 'late'"
+    [class.bg-error]="status() === 'critical'"
+    [class.bg-base-300]="status() === 'never'">
+  </span>
+  {{ label() }}
+</span>

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/albertolunardini/Developper/**)",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/ETA/data/eta.db \"SELECT id, syncedAt, success, substr\\(response,1,100\\) FROM sync_log ORDER BY id DESC LIMIT 8;\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"DELETE FROM noon_positions WHERE ship_id='last' AND id='test-noon-1';\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/ETA/data/eta.db \"SELECT id, syncedAt, success, substr\\(response,1,80\\) FROM sync_log ORDER BY id DESC LIMIT 3;\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"SELECT COUNT\\(*\\) as noon FROM noon_positions WHERE ship_id='last'; SELECT json_array_length\\(items\\) as items, json_array_length\\(lines\\) as lines FROM mooring_latest WHERE ship_id='last';\")",
+      "Bash(curl -s -X POST http://127.0.0.1:4000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@eta.com\",\"password\":\"admin123\"}')",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"SELECT id, email, role FROM office_users;\")",
+      "Bash(curl -s -X POST http://127.0.0.1:4000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@etaoffice.com\",\"password\":\"admin123\"}')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('token ok' if 'token' in d else d\\)\")"
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+<div class="p-6">
+  <h1 class="text-2xl font-bold text-primary mb-6">Fleet Reports</h1>
+
+  @if (reportSvc.$loading()) {
+    <div class="flex justify-center py-20">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  } @else if (reportSvc.$error()) {
+    <div class="alert alert-error">{{ reportSvc.$error() }}</div>
+  } @else if (reportSvc.$report().length === 0) {
+    <div class="alert alert-info">No ships with data yet.</div>
+  } @else {
+
+    <!-- Bunker consumption chart -->
+    <div class="card bg-base-200 mb-6 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-base">Bunker Consumption by Vessel</h2>
+        <div echarts [options]="bunkerChartOptions()" class="h-64"></div>
+      </div>
+    </div>
+
+    <!-- Average speed chart -->
+    <div class="card bg-base-200 mb-6 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-base">Average Speed by Vessel</h2>
+        <div echarts [options]="speedChartOptions()" class="h-48"></div>
+      </div>
+    </div>
+
+    <!-- Mooring status table -->
+    <div class="card bg-base-200 shadow-sm">
+      <div class="card-body">
+        <div class="flex justify-between items-center">
+          <h2 class="card-title text-base">Mooring Status — Fleet Overview</h2>
+          <button class="btn btn-sm btn-outline" (click)="exportExcel()">Export Excel</button>
+        </div>
+        <div class="overflow-x-auto mt-2">
+          <table class="table table-sm">
+            <thead class="bg-primary text-primary-content">
+              <tr>
+                <th>Vessel</th>
+                <th>Last sync</th>
+                <th>FO cons (MT)</th>
+                <th>DO cons (MT)</th>
+                <th>Avg speed</th>
+                <th class="text-error">🔴 Red</th>
+                <th class="text-warning">🟡 Amber</th>
+                <th class="text-success">🟢 Green</th>
+                <th>Total lines</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of reportSvc.$report(); track row.shipId) {
+                <tr class="hover">
+                  <td class="font-medium">{{ row.shipName }}</td>
+                  <td><app-sync-badge [lastSyncAt]="row.lastSyncAt" /></td>
+                  <td>{{ row.foConsumedMt | number:'1.1-1' }}</td>
+                  <td>{{ row.doConsumedMt | number:'1.1-1' }}</td>
+                  <td>{{ row.avgSpeedKts != null ? (row.avgSpeedKts | number:'1.1-1') + ' kts' : '—' }}</td>
+                  <td><span class="badge badge-error">{{ row.mooring.red }}</span></td>
+                  <td><span class="badge badge-warning">{{ row.mooring.amber }}</span></td>
+                  <td><span class="badge badge-success">{{ row.mooring.green }}</span></td>
+                  <td class="text-base-content/60">{{ row.mooring.total }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

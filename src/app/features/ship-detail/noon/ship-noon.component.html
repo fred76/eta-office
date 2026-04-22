@@ -1,0 +1,100 @@
+<div class="p-4">
+
+  <!-- Filters -->
+  <div class="flex gap-2 mb-4 flex-wrap">
+    <input class="input input-bordered input-sm" placeholder="Voyage #"
+           [ngModel]="filterVoyage()" (ngModelChange)="filterVoyage.set($event)" />
+    <input class="input input-bordered input-sm" type="date"
+           [ngModel]="filterFrom()" (ngModelChange)="filterFrom.set($event)" />
+    <input class="input input-bordered input-sm" type="date"
+           [ngModel]="filterTo()" (ngModelChange)="filterTo.set($event)" />
+    <span class="text-sm text-base-content/50 self-center">
+      {{ filteredEntries().length }} entries
+    </span>
+    <button class="btn btn-sm btn-outline" (click)="exportExcel()">Export Excel</button>
+  </div>
+
+  @if (shipSvc.$noon().length === 0) {
+    <div class="alert alert-info">No noon positions received yet.</div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead class="bg-primary text-primary-content">
+          <tr>
+            <th>Date</th>
+            <th>Voyage</th>
+            <th>Position</th>
+            <th>Course</th>
+            <th>SOG</th>
+            <th>ROB FO</th>
+            <th>ROB DO</th>
+            <th>Wind</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of filteredEntries(); track entry.id) {
+            <tr class="hover cursor-pointer" (click)="openDetail(entry)">
+              <td class="font-medium">{{ entry.date }}</td>
+              <td><span class="badge badge-outline badge-sm">{{ entry.voyageNumber }}</span></td>
+              <td class="font-mono text-xs">
+                {{ entry.lat }} {{ entry.latHemi }} /
+                {{ entry.lon }} {{ entry.lonHemi }}
+              </td>
+              <td>{{ entry.courseTrue }}°</td>
+              <td>{{ entry.speedSog }} kts</td>
+              <td>{{ entry.foRobMt | number:'1.1-1' }}</td>
+              <td>{{ entry.doRobMt | number:'1.1-1' }}</td>
+              <td>{{ entry.windDirection }} Bft{{ entry.windBeaufort }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" class="text-center text-base-content/40 py-6">No entries match filters</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>
+
+<!-- Detail drawer -->
+@if (selected()) {
+  <div class="fixed inset-0 z-50 flex">
+    <div class="flex-1 bg-black/40" (click)="closeDetail()"></div>
+    <div class="w-[480px] bg-base-100 overflow-y-auto p-6 shadow-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg">Noon — {{ selected()!.date }}</h3>
+        <button class="btn btn-ghost btn-sm" (click)="closeDetail()">✕</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="col-span-2 divider text-xs my-1">Header</div>
+        <div><span class="text-base-content/50">Voyage</span><p class="font-medium">{{ selected()!.voyageNumber }}</p></div>
+        <div><span class="text-base-content/50">Condition</span><p class="font-medium">{{ selected()!.condition }}</p></div>
+        <div><span class="text-base-content/50">From</span><p class="font-medium">{{ selected()!.portFrom }}</p></div>
+        <div><span class="text-base-content/50">To</span><p class="font-medium">{{ selected()!.portTo }}</p></div>
+        <div><span class="text-base-content/50">SSP</span><p class="font-medium">{{ selected()!.ssp }}</p></div>
+        <div><span class="text-base-content/50">EOSP</span><p class="font-medium">{{ selected()!.eosp }}</p></div>
+
+        <div class="col-span-2 divider text-xs my-1">Position & Speed</div>
+        <div><span class="text-base-content/50">Position</span><p class="font-mono text-xs">{{ selected()!.lat }} {{ selected()!.latHemi }} / {{ selected()!.lon }} {{ selected()!.lonHemi }}</p></div>
+        <div><span class="text-base-content/50">SOG / Log</span><p class="font-medium">{{ selected()!.speedSog }} / {{ selected()!.speedLog }} kts</p></div>
+        <div><span class="text-base-content/50">Course (T/M)</span><p class="font-medium">{{ selected()!.courseTrue }}° / {{ selected()!.courseMag }}°</p></div>
+        <div><span class="text-base-content/50">Dist noon-noon</span><p class="font-medium">{{ selected()!.distanceSinceLastNoon | number:'1.0-0' }} nm</p></div>
+        <div><span class="text-base-content/50">Dist to go</span><p class="font-medium">{{ selected()!.distanceToGo | number:'1.0-0' }} nm</p></div>
+        <div><span class="text-base-content/50">Draft F/A</span><p class="font-medium">{{ selected()!.draftFwd }}m / {{ selected()!.draftAft }}m</p></div>
+
+        <div class="col-span-2 divider text-xs my-1">Bunkers</div>
+        <div><span class="text-base-content/50">FO ROB</span><p class="font-medium">{{ selected()!.foRobMt | number:'1.1-1' }} MT</p></div>
+        <div><span class="text-base-content/50">DO ROB</span><p class="font-medium">{{ selected()!.doRobMt | number:'1.1-1' }} MT</p></div>
+        <div><span class="text-base-content/50">FO cons 24h</span><p class="font-medium">{{ selected()!.foConsumedMt | number:'1.2-2' }} MT</p></div>
+        <div><span class="text-base-content/50">DO cons 24h</span><p class="font-medium">{{ selected()!.doConsumedMt | number:'1.2-2' }} MT</p></div>
+
+        <div class="col-span-2 divider text-xs my-1">Weather</div>
+        <div><span class="text-base-content/50">Wind</span><p class="font-medium">{{ selected()!.windDirection }} Bft {{ selected()!.windBeaufort }}</p></div>
+        <div><span class="text-base-content/50">Sea / Swell</span><p class="font-medium">SS{{ selected()!.seaState }} / {{ selected()!.swellDirection }} {{ selected()!.swellHeightM }}m</p></div>
+        <div><span class="text-base-content/50">Baro</span><p class="font-medium">{{ selected()!.baroPressureHpa }} hPa</p></div>
+        <div><span class="text-base-content/50">Air / Sea temp</span><p class="font-medium">{{ selected()!.airTempC }}°C / {{ selected()!.seaTempC }}°C</p></div>
+      </div>
+    </div>
+  </div>
+}

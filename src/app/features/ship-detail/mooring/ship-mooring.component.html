@@ -1,0 +1,155 @@
+<div class="p-4">
+
+  <!-- Mooring canvas -->
+  @if (shipSvc.$mooring()?.items?.length) {
+    <div class="mb-4">
+      <app-mooring-canvas-readonly
+        [items]="shipSvc.$mooring()!.items"
+        [lines]="shipSvc.$mooring()!.lines" />
+    </div>
+  }
+
+  <!-- Summary stats -->
+  <div class="flex gap-3 mb-4 flex-wrap">
+    <div class="stat bg-error/10 rounded-lg p-3 flex-1 min-w-24">
+      <div class="stat-title text-xs">Red</div>
+      <div class="stat-value text-lg text-error">{{ redCount }}</div>
+    </div>
+    <div class="stat bg-warning/10 rounded-lg p-3 flex-1 min-w-24">
+      <div class="stat-title text-xs">Amber</div>
+      <div class="stat-value text-lg text-warning">{{ amberCount }}</div>
+    </div>
+    <div class="stat bg-success/10 rounded-lg p-3 flex-1 min-w-24">
+      <div class="stat-title text-xs">Green</div>
+      <div class="stat-value text-lg text-success">{{ greenCount }}</div>
+    </div>
+    <div class="flex items-center">
+      <select class="select select-bordered select-sm" [ngModel]="filterStatus()"
+        (ngModelChange)="filterStatus.set($event)">
+        <option value="">All lines</option>
+        <option value="RED">Red only</option>
+        <option value="AMBER">Amber only</option>
+        <option value="GREEN">Green only</option>
+      </select>
+    </div>
+  </div>
+
+  @if (!shipSvc.$mooring() || shipSvc.$mooring()!.lines.length === 0) {
+  <div class="alert alert-info">No mooring data received yet.</div>
+  } @else {
+  <div class="overflow-x-auto">
+    <table class="table table-zebra table-sm">
+      <thead class="bg-primary text-primary-content">
+        <tr>
+          <th>Status</th>
+          <th>Label</th>
+          <th>Position</th>
+          <th>Material</th>
+          <th>Ø mm</th>
+          <th>Length m</th>
+          <th>WLL kN</th>
+          <th>Service hrs</th>
+          <th>Line status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of filteredLines(); track line.id) {
+        <tr class="hover cursor-pointer" (click)="selected.set(line)">
+          <td><app-traffic-light [color]="trafficLight(line)" /></td>
+          <td class="font-medium">{{ line.label }}</td>
+          <td class="text-sm">{{ line.functionalPosition }}</td>
+          <td class="text-sm">{{ line.material }}</td>
+          <td>{{ line.diameterMm }}</td>
+          <td>{{ line.lengthM }}</td>
+          <td>{{ line.wllKn | number:'1.0-0' }}</td>
+          <td>{{ line.totalServiceHours | number:'1.0-0' }}</td>
+          <td><span class="badge badge-outline badge-sm">{{ line.status }}</span></td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="9" class="text-center text-base-content/40 py-6">No lines match filter</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+</div>
+
+<!-- Line detail drawer -->
+@if (selected()) {
+<div class="fixed inset-0 z-50 flex">
+  <div class="flex-1 bg-black/40" (click)="selected.set(null)"></div>
+  <div class="w-[440px] bg-base-100 overflow-y-auto p-6 shadow-2xl">
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex items-center gap-2">
+        <app-traffic-light [color]="trafficLight(selected()!)" />
+        <h3 class="font-bold text-lg">{{ selected()!.label }}</h3>
+      </div>
+      <button class="btn btn-ghost btn-sm" (click)="selected.set(null)">✕</button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 text-sm">
+      <div><span class="text-base-content/50">Material</span>
+        <p class="font-medium">{{ selected()!.material }}</p>
+      </div>
+      <div><span class="text-base-content/50">Diameter</span>
+        <p class="font-medium">{{ selected()!.diameterMm }} mm</p>
+      </div>
+      <div><span class="text-base-content/50">Length</span>
+        <p class="font-medium">{{ selected()!.lengthM }} m</p>
+      </div>
+      <div><span class="text-base-content/50">LDBF</span>
+        <p class="font-medium">{{ selected()!.ldbfKn }} kN</p>
+      </div>
+      <div><span class="text-base-content/50">WLL</span>
+        <p class="font-medium">{{ selected()!.wllKn }} kN</p>
+      </div>
+      <div><span class="text-base-content/50">Status</span>
+        <p class="font-medium">{{ selected()!.status }}</p>
+      </div>
+      <div><span class="text-base-content/50">Received</span>
+        <p class="font-medium">{{ selected()!.receivedDate }}</p>
+      </div>
+      <div><span class="text-base-content/50">Service hrs</span>
+        <p class="font-medium">{{ selected()!.totalServiceHours | number:'1.0-0' }}</p>
+      </div>
+      <div><span class="text-base-content/50">Operations</span>
+        <p class="font-medium">{{ selected()!.totalOperations }}</p>
+      </div>
+      <div><span class="text-base-content/50">Position</span>
+        <p class="font-medium">{{ selected()!.functionalPosition }}</p>
+      </div>
+
+      @if (selected()!.inspections.length) {
+      <div class="col-span-2 divider text-xs my-1">Last Inspection</div>
+      @let last = selected()!.inspections[selected()!.inspections.length - 1];
+      <div><span class="text-base-content/50">Date</span>
+        <p class="font-medium">{{ last.date }}</p>
+      </div>
+      <div><span class="text-base-content/50">Type</span>
+        <p class="font-medium">{{ last.type }}</p>
+      </div>
+      <div><span class="text-base-content/50">Condition</span>
+        <p class="font-medium">{{ last.overallCondition }}</p>
+      </div>
+      <div><span class="text-base-content/50">Wear zone</span>
+        <p class="font-medium">{{ last.wearZoneStatus }}</p>
+      </div>
+      <div><span class="text-base-content/50">Degradation</span>
+        <p class="font-medium">{{ last.degradationPct }}%</p>
+      </div>
+      <div><span class="text-base-content/50">Action</span>
+        <p class="font-medium">{{ last.actionRequired }}</p>
+      </div>
+      @if (last.notes) {
+      <div class="col-span-2"><span class="text-base-content/50">Notes</span>
+        <p>{{ last.notes }}</p>
+      </div>
+      }
+      }
+    </div>
+  </div>
+</div>
+}

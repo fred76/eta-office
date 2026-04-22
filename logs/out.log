@@ -1,0 +1,10 @@
+2026-04-21 10:41:24: ◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+2026-04-21 10:41:24: ETA Office server → http://0.0.0.0:4000
+2026-04-22 08:25:02: ◇ injected env (2) from .env // tip: ⌘ suppress logs { quiet: true }
+2026-04-22 08:25:03: ETA Office server → http://0.0.0.0:4000
+2026-04-22 08:49:00: ◇ injected env (2) from .env // tip: ⌘ enable debugging { debug: true }
+2026-04-22 08:49:00: ETA Office server → http://0.0.0.0:4000
+2026-04-22 08:52:56: ◇ injected env (2) from .env // tip: ⌘ suppress logs { quiet: true }
+2026-04-22 08:52:56: ETA Office server → http://0.0.0.0:4000
+2026-04-22 08:59:02: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+2026-04-22 08:59:02: ETA Office server → http://0.0.0.0:4000

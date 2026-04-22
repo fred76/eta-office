@@ -1,0 +1,27 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const express_1 = tslib_1.__importDefault(require("express"));
+const path_1 = tslib_1.__importDefault(require("path"));
+const config_1 = require("./config");
+const client_1 = require("./db/client");
+const auth_routes_1 = require("./routes/auth.routes");
+const sync_routes_1 = require("./routes/sync.routes");
+const fleet_routes_1 = require("./routes/fleet.routes");
+const ship_routes_1 = require("./routes/ship.routes");
+const reports_routes_1 = require("./routes/reports.routes");
+const app = (0, express_1.default)();
+app.use(express_1.default.json({ limit: '10mb' }));
+(0, client_1.runMigrations)();
+app.use('/api/auth', auth_routes_1.authRouter);
+app.use('/api/sync', sync_routes_1.syncRouter);
+app.use('/api/fleet', fleet_routes_1.fleetRouter);
+app.use('/api/ship', ship_routes_1.shipRouter);
+app.use('/api/reports', reports_routes_1.reportsRouter);
+app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'eta-office' }));
+const distPath = path_1.default.resolve('./dist/eta-office/browser');
+app.use(express_1.default.static(distPath));
+app.use((_req, res) => res.sendFile(path_1.default.join(distPath, 'index.html')));
+app.listen(config_1.CONFIG.PORT, config_1.CONFIG.HOST, () => {
+    console.log(`ETA Office server → http://${config_1.CONFIG.HOST}:${config_1.CONFIG.PORT}`);
+});

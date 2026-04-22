@@ -1,0 +1,62 @@
+<div class="p-4">
+
+  <!-- Toolbar: export -->
+  <div class="flex justify-end gap-2 mb-4">
+    <button class="btn btn-sm btn-outline" (click)="exportExcel()">Export Excel</button>
+    <button class="btn btn-sm btn-outline" (click)="exportPDF()">Export PDF</button>
+  </div>
+
+  @if (!rotation()) {
+    <div class="alert alert-info">No rotation data received yet.</div>
+  } @else {
+
+    <!-- Header stats -->
+    <div class="flex gap-4 mb-4 text-sm flex-wrap">
+      <div class="stat bg-base-200 rounded-lg p-3 flex-1 min-w-32">
+        <div class="stat-title text-xs">Initial FO ROB</div>
+        <div class="stat-value text-lg">{{ rotation()!.initialFORob ?? '—' }} MT</div>
+      </div>
+      <div class="stat bg-base-200 rounded-lg p-3 flex-1 min-w-32">
+        <div class="stat-title text-xs">Initial DO ROB</div>
+        <div class="stat-value text-lg">{{ rotation()!.initialDORob ?? '—' }} MT</div>
+      </div>
+      <div class="stat bg-base-200 rounded-lg p-3 flex-1 min-w-32">
+        <div class="stat-title text-xs">Ports</div>
+        <div class="stat-value text-lg">{{ rotation()!.ports.length }}</div>
+      </div>
+    </div>
+
+    <!-- Read-only banner -->
+    <div class="alert alert-info py-2 mb-4">
+      <span class="text-sm">📖 Read-only — data from last ship sync</span>
+    </div>
+
+    <!-- Ports + activities -->
+    @for (port of rotation()!.ports; track port.idOrder ?? $index) {
+      <div class="card bg-base-200 mb-3 shadow-sm">
+        <div class="card-body p-0">
+
+          <!-- Port header -->
+          <div class="flex items-center justify-between px-4 py-2 bg-primary/10 rounded-t-xl">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">🏭</span>
+              <div>
+                <span class="font-bold text-primary">{{ port.port }}</span>
+                @if (port.voyageNumber) {
+                  <span class="badge badge-outline badge-sm ml-2">{{ port.voyageNumber }}</span>
+                }
+              </div>
+            </div>
+            <span class="text-xs text-base-content/50">UTC {{ port.utc >= 0 ? '+' : '' }}{{ port.utc }}</span>
+          </div>
+
+          <!-- Activities timeline -->
+          <div class="px-4 py-3">
+            <app-activity-timeline-readonly [activities]="port.activities" />
+          </div>
+
+        </div>
+      </div>
+    }
+  }
+</div>

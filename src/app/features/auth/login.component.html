@@ -1,0 +1,62 @@
+<div class="min-h-screen bg-base-100 flex items-center justify-center p-4">
+  <div class="card w-full max-w-sm bg-base-200 shadow-xl">
+    <div class="card-body">
+
+      <!-- Logo / header -->
+      <div class="text-center mb-4">
+        <div class="text-4xl mb-2">⚓</div>
+        <h1 class="text-2xl font-bold text-primary">ETA Office</h1>
+        <p class="text-sm text-base-content/60 mt-1">Fleet management portal</p>
+      </div>
+
+      <!-- Error alert -->
+      @if (error()) {
+        <div class="alert alert-error py-2 text-sm">{{ error() }}</div>
+      }
+
+      <!-- Form -->
+      <form (ngSubmit)="submit()" class="flex flex-col gap-3">
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text text-sm font-medium">Email</span>
+          </label>
+          <input
+            type="email"
+            class="input input-bordered w-full"
+            placeholder="admin@company.com"
+            name="email"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            required
+            autocomplete="email" />
+        </div>
+
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text text-sm font-medium">Password</span>
+          </label>
+          <input
+            type="password"
+            class="input input-bordered w-full"
+            placeholder="••••••••"
+            name="password"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            required
+            autocomplete="current-password" />
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-full mt-2"
+          [disabled]="loading()">
+          @if (loading()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          Sign in
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>

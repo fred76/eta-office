@@ -1,0 +1,68 @@
+<div class="p-6 bg-base-100 min-h-screen">
+  <h1 class="text-2xl font-bold text-primary mb-6">Fleet Dashboard</h1>
+
+  @if (fleetSvc.$loading()) {
+    <div class="flex justify-center py-20">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  } @else if (fleetSvc.$error()) {
+    <div class="alert alert-error">{{ fleetSvc.$error() }}</div>
+  } @else if (fleetSvc.$ships().length === 0) {
+    <div class="alert alert-info">No ships registered yet.</div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      @for (ship of fleetSvc.$ships(); track ship.id) {
+        <div class="card bg-base-200 shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+             [routerLink]="['/ship', ship.id]">
+          <div class="card-body">
+
+            <!-- Header -->
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="card-title text-primary">{{ ship.name }}</h2>
+                <p class="text-sm text-base-content/60">
+                  @if (ship.imoNumber) { IMO {{ ship.imoNumber }} }
+                  @if (ship.vesselType) { &nbsp;·&nbsp; {{ ship.vesselType }} }
+                </p>
+              </div>
+              <app-sync-badge [lastSyncAt]="ship.lastSyncAt" />
+            </div>
+
+            <!-- Rotation data -->
+            @if (ship.rotation) {
+              <div class="divider my-1"></div>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span class="text-base-content/50 text-xs">From</span>
+                  <p class="font-medium truncate">{{ firstPort(ship.rotation) }}</p>
+                </div>
+                <div>
+                  <span class="text-base-content/50 text-xs">Next port</span>
+                  <p class="font-medium truncate">{{ nextPort(ship.rotation) }}</p>
+                </div>
+                <div>
+                  <span class="text-base-content/50 text-xs">ROB FO</span>
+                  <p class="font-medium">{{ currentRobFO(ship.rotation) | number:'1.0-0' }} MT</p>
+                </div>
+                <div>
+                  <span class="text-base-content/50 text-xs">ROB DO</span>
+                  <p class="font-medium">{{ currentRobDO(ship.rotation) | number:'1.0-0' }} MT</p>
+                </div>
+              </div>
+            } @else {
+              <p class="text-sm text-base-content/40 mt-2">No rotation data yet</p>
+            }
+
+            <!-- Mooring alert -->
+            @if (ship.mooringRedCount > 0) {
+              <div class="alert alert-error py-1 mt-2">
+                <span class="text-xs">⚠ {{ ship.mooringRedCount }} mooring line(s) require attention</span>
+              </div>
+            }
+
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

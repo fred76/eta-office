@@ -1,0 +1,135 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold text-primary">Fleet</h1>
+    @if (authSvc.isAdmin()) {
+      <button class="btn btn-primary btn-sm" (click)="openAdd()">+ Add ship</button>
+    }
+  </div>
+
+  @if (fleetSvc.$loading()) {
+    <div class="flex justify-center py-20">
+      <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  } @else if (fleetSvc.$error()) {
+    <div class="alert alert-error">{{ fleetSvc.$error() }}</div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-primary text-primary-content">
+          <tr>
+            <th>Vessel</th>
+            <th>IMO</th>
+            <th>Flag</th>
+            <th>Type</th>
+            <th>Last sync</th>
+            <th></th>
+            @if (authSvc.isAdmin()) { <th></th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (ship of fleetSvc.$ships(); track ship.id) {
+            <tr class="hover">
+              <td class="font-medium cursor-pointer" [routerLink]="['/ship', ship.id]">{{ ship.name }}</td>
+              <td class="text-base-content/60">{{ ship.imoNumber ?? '—' }}</td>
+              <td>{{ ship.flag ?? '—' }}</td>
+              <td>
+                @if (ship.vesselType) {
+                  <span class="badge badge-outline badge-sm">{{ ship.vesselType }}</span>
+                } @else {
+                  <span class="text-base-content/40">—</span>
+                }
+              </td>
+              <td><app-sync-badge [lastSyncAt]="ship.lastSyncAt" /></td>
+              <td>
+                <button class="btn btn-ghost btn-xs" [routerLink]="['/ship', ship.id]">View →</button>
+              </td>
+              @if (authSvc.isAdmin()) {
+                <td>
+                  <button class="btn btn-ghost btn-xs"
+                          [disabled]="regenLoading() === ship.id"
+                          (click)="regenToken(ship.id, ship.name)">
+                    @if (regenLoading() === ship.id) {
+                      <span class="loading loading-spinner loading-xs"></span>
+                    } @else {
+                      Regen token
+                    }
+                  </button>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center text-base-content/40 py-8">No ships registered</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Add ship modal -->
+@if (showAddModal()) {
+  <div class="modal modal-open">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Register new ship</h3>
+
+      @if (addError()) {
+        <div class="alert alert-error mb-3 py-2 text-sm">{{ addError() }}</div>
+      }
+
+      <div class="flex flex-col gap-3">
+        <label class="form-control">
+          <span class="label-text text-xs">Ship ID *</span>
+          <input class="input input-bordered input-sm" placeholder="mv-example-001"
+                 name="sid" [(ngModel)]="form.id" />
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">Name *</span>
+          <input class="input input-bordered input-sm" placeholder="MV Example"
+                 name="sname" [(ngModel)]="form.name" />
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">IMO number</span>
+          <input class="input input-bordered input-sm" placeholder="1234567"
+                 name="simo" [(ngModel)]="form.imoNumber" />
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="form-control">
+            <span class="label-text text-xs">Flag</span>
+            <input class="input input-bordered input-sm" placeholder="IT"
+                   name="sflag" [(ngModel)]="form.flag" />
+          </label>
+          <label class="form-control">
+            <span class="label-text text-xs">Vessel type</span>
+            <input class="input input-bordered input-sm" placeholder="Bulk Carrier"
+                   name="svtype" [(ngModel)]="form.vesselType" />
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-action">
+        <button class="btn btn-ghost btn-sm" (click)="showAddModal.set(false)">Cancel</button>
+        <button class="btn btn-primary btn-sm" [disabled]="addLoading()" (click)="submitAdd()">
+          @if (addLoading()) { <span class="loading loading-spinner loading-xs"></span> }
+          Register
+        </button>
+      </div>
+    </div>
+    <div class="modal-backdrop" (click)="showAddModal.set(false)"></div>
+  </div>
+}
+
+<!-- New token display -->
+@if (newToken()) {
+  <div class="modal modal-open">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-2">Sync token — {{ newTokenShip() }}</h3>
+      <p class="text-sm text-base-content/60 mb-3">Copy this token and configure it on the ship. It won't be shown again.</p>
+      <div class="bg-base-200 rounded p-3 font-mono text-sm break-all select-all">{{ newToken() }}</div>
+      <div class="modal-action">
+        <button class="btn btn-primary btn-sm" (click)="newToken.set(null)">Done</button>
+      </div>
+    </div>
+  </div>
+}

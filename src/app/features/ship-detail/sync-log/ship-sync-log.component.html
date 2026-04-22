@@ -1,0 +1,41 @@
+<div class="p-4">
+  <h2 class="text-lg font-bold text-primary mb-4">Sync Log</h2>
+
+  @if (shipSvc.$syncLog().length === 0) {
+    <div class="alert alert-info">No sync records yet.</div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead class="bg-primary text-primary-content">
+          <tr>
+            <th>Received at</th>
+            <th>Status</th>
+            <th>Size</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of shipSvc.$syncLog(); track log.id) {
+            <tr>
+              <td class="font-mono text-xs">
+                {{ log.receivedAt | date:'dd MMM yyyy HH:mm:ss' }}
+              </td>
+              <td>
+                @if (log.success) {
+                  <span class="badge badge-success badge-sm">OK</span>
+                } @else {
+                  <span class="badge badge-error badge-sm">FAIL</span>
+                }
+              </td>
+              <td class="text-sm">
+                @if (log.payloadSizeKb != null) { {{ log.payloadSizeKb }} KB }
+                @else { — }
+              </td>
+              <td class="text-xs text-error">{{ log.errorMsg ?? '' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
