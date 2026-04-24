@@ -4,7 +4,7 @@
   <aside class="w-56 bg-primary text-primary-content flex flex-col shrink-0">
     <div class="p-4 border-b border-primary-content/20">
       <div class="flex items-center gap-2">
-        <span class="text-2xl">⚓</span>
+        <span class="material-icons text-2xl">anchor</span>
         <div>
           <p class="font-bold text-sm leading-tight">ETA Office</p>
           <p class="text-xs text-primary-content/60">Fleet management</p>
@@ -15,22 +15,22 @@
     <nav class="flex flex-col gap-1 p-2 flex-1">
       <a routerLink="/dashboard" routerLinkActive="bg-primary-content/20"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
-        <span>📊</span> Dashboard
+        <span class="material-icons text-lg">dashboard</span> Dashboard
       </a>
       <a routerLink="/fleet" routerLinkActive="bg-primary-content/20"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
-        <span>🚢</span> Fleet
+        <span class="material-icons text-lg">directions_boat</span> Fleet
       </a>
       <a routerLink="/reports" routerLinkActive="bg-primary-content/20"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
-        <span>📈</span> Reports
+        <span class="material-icons text-lg">bar_chart</span> Reports
       </a>
     </nav>
 
     <div class="p-2 border-t border-primary-content/20">
       <button (click)="auth.logout()"
               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm w-full hover:bg-primary-content/10 transition-colors">
-        <span>🚪</span> Sign out
+        <span class="material-icons text-lg">logout</span> Sign out
       </button>
     </div>
   </aside>

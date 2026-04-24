@@ -124,5 +124,6 @@ export interface MooringItem {
   rotation: number;
   lineIds: string[]; // basket: 0..N, winch: 0..1, spare-rope: 0..1
   canvasSection: CanvasSection;
+  identification?: string;
 }
 

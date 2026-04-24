@@ -3,10 +3,18 @@ import { TimelineBoxComponent } from './timeline-box.component'
 import type { ActivityModel } from '../../../../../shared/rotation-machinery.interface'
 
 const ICONS: Record<string, string> = {
-  'Sea Passage': '⛵', 'Loading': '📦', 'Discharging': '📤',
-  'Bunkering': '⛽', 'Anchoring': '⚓', 'Pilotage Inbound': '🔼',
-  'Pilotage Outbound': '🔽', 'Canal Transit': '🌊', 'Drifting': '🌀',
-  'Shifting': '↔', 'Cleaning': '🧹', 'Layby Berth': '🔲',
+  'Sea Passage':       'sailing',
+  'Pilotage Inbound':  'compare_arrows',
+  'Pilotage Outbound': 'compare_arrows',
+  'Loading':           'file_download',
+  'Discharging':       'file_upload',
+  'Cleaning':          'cyclone',
+  'Shifting':          'repeat',
+  'Layby Berth':       'hourglass_empty',
+  'Bunkering':         'local_gas_station',
+  'Anchoring':         'anchor',
+  'Drifting':          'anchor',
+  'Canal Transit':     'alt_route',
 }
 
 const COLORS: Record<string, string> = {
@@ -43,7 +51,7 @@ const COLORS: Record<string, string> = {
 
               <div class="timeline-middle">
                 <div class="btn btn-circle btn-sm {{ btnColor(a) }} pointer-events-none select-none">
-                  {{ icon(a) }}
+                  <span class="material-icons text-base leading-none">{{ icon(a) }}</span>
                 </div>
               </div>
 
@@ -59,7 +67,7 @@ export class ActivityTimelineReadonlyComponent {
   activities = input<ActivityModel[]>([])
 
   icon(a: ActivityModel): string {
-    return ICONS[a.activityType ?? ''] ?? '●'
+    return a.icon ?? ICONS[a.activityType ?? ''] ?? 'circle'
   }
 
   btnColor(a: ActivityModel): string {

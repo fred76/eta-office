@@ -14,6 +14,7 @@ type MooringView = 'canvas' | 'item-detail' | 'basket-detail'
   standalone: true,
   imports: [FormsModule, DecimalPipe, TrafficLightComponent, MooringCanvasReadonlyComponent],
   templateUrl: './ship-mooring.component.html',
+  host: { style: 'display:block; height:100%' },
 })
 export class ShipMooringComponent implements OnInit {
   protected shipSvc = inject(ShipService)

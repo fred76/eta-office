@@ -56,14 +56,13 @@
 
 </div>
 
-<!-- Detail drawer -->
+<!-- Detail modal -->
 @if (selected()) {
-  <div class="fixed inset-0 z-50 flex">
-    <div class="flex-1 bg-black/40" (click)="closeDetail()"></div>
-    <div class="w-[480px] bg-base-100 overflow-y-auto p-6 shadow-2xl">
+  <div class="modal modal-open">
+    <div class="modal-box max-w-lg overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="font-bold text-lg">Noon — {{ selected()!.date }}</h3>
-        <button class="btn btn-ghost btn-sm" (click)="closeDetail()">✕</button>
+        <button class="btn btn-ghost btn-sm" (click)="closeDetail()"><span class="material-icons text-sm">close</span></button>
       </div>
 
       <div class="grid grid-cols-2 gap-3 text-sm">
@@ -96,5 +95,6 @@
         <div><span class="text-base-content/50">Air / Sea temp</span><p class="font-medium">{{ selected()!.airTempC }}°C / {{ selected()!.seaTempC }}°C</p></div>
       </div>
     </div>
+    <div class="modal-backdrop" (click)="closeDetail()"></div>
   </div>
 }

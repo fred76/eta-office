@@ -13,7 +13,7 @@ import type { ActivityModel } from '../../../../../shared/rotation-machinery.int
     >
       <div class="flex flex-col gap-0.5 px-2 py-1.5 bg-base-100">
         <div class="flex items-center gap-1 text-base-content">
-          <span class="text-xs opacity-60">⏱</span>
+          <span class="material-icons text-sm opacity-60">schedule</span>
           <span
             >{{
               activity()?.timeNeededForOperation | number: '1.1-1'
@@ -27,7 +27,7 @@ import type { ActivityModel } from '../../../../../shared/rotation-machinery.int
 
         @if (activity()?.activityType === 'Sea Passage') {
           <div class="flex items-center gap-1 text-base-content">
-            <span class="text-xs opacity-60">📏</span>
+            <span class="material-icons text-sm opacity-60">straighten</span>
             <span
               >{{ activity()?.distance }} nm "&#64;"
               {{ activity()?.speedKts }} kts</span
@@ -45,14 +45,14 @@ import type { ActivityModel } from '../../../../../shared/rotation-machinery.int
           ].includes(activity()?.activityType ?? '')
         ) {
           <div class="flex items-center gap-1 text-base-content">
-            <span class="text-xs opacity-60">⚓</span>
+            <span class="material-icons text-sm opacity-60">anchor</span>
             <span>{{ activity()?.toBerth }}</span>
           </div>
         }
 
         @if (activity()?.activityType === 'Shifting') {
           <div class="flex items-center gap-1 text-base-content">
-            <span class="text-xs opacity-60">→</span>
+            <span class="material-icons text-sm opacity-60">arrow_forward</span>
             <span>To: {{ activity()?.toBerth }}</span>
           </div>
         }
@@ -60,7 +60,7 @@ import type { ActivityModel } from '../../../../../shared/rotation-machinery.int
         <div class="border-t border-base-300 my-0.5"></div>
 
         <div class="flex items-center gap-1 font-medium text-base-content">
-          <span class="text-xs opacity-60">📅</span>
+          <span class="material-icons text-sm opacity-60">calendar_today</span>
           <span>{{ activity()?.ETX }} {{ activity()?.date_Derived }}</span>
         </div>
 

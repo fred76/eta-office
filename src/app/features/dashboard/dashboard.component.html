@@ -56,7 +56,8 @@
             <!-- Mooring alert -->
             @if (ship.mooringRedCount > 0) {
               <div class="alert alert-error py-1 mt-2">
-                <span class="text-xs">⚠ {{ ship.mooringRedCount }} mooring line(s) require attention</span>
+                <span class="material-icons text-sm">warning</span>
+                <span class="text-xs">{{ ship.mooringRedCount }} mooring line(s) require attention</span>
               </div>
             }
 
