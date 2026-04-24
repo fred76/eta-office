@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core'
+import { Component, computed, input, output, signal } from '@angular/core'
 import type { MooringItem, MooringLine, CanvasSection, TrafficLightColor } from '../../../../../shared/mooring-line.model'
 
 function computeTL(lineIds: string[], lines: MooringLine[]): TrafficLightColor {
@@ -7,12 +7,19 @@ function computeTL(lineIds: string[], lines: MooringLine[]): TrafficLightColor {
     const l = lines.find(x => x.id === id)
     if (!l) return 'GREY' as TrafficLightColor
     if (l.status === 'RETIRED' || l.status === 'OUT_OF_SERVICE') return 'GREY' as TrafficLightColor
-    const last = l.inspections?.[l.inspections.length - 1]
-    if (!last) return 'GREY' as TrafficLightColor
-    if (last.actionRequired === 'RETIRE' || last.overallCondition === 'RETIRE') return 'RED' as TrafficLightColor
-    if (last.actionRequired === 'EARLY_REINSPECTION' || last.wearZoneStatus === 'CRITICAL') return 'RED' as TrafficLightColor
-    if (last.actionRequired === 'MONITOR' || last.overallCondition === 'MARGINAL') return 'AMBER' as TrafficLightColor
-    if (last.wearZoneStatus === 'MONITOR') return 'AMBER' as TrafficLightColor
+    const inspections = l.inspections ?? []
+    if (inspections.length === 0) return 'GREY' as TrafficLightColor
+    // Use all inspections - worst case determines status
+    const hasRed = inspections.some(i =>
+      i.actionRequired === 'RETIRE' || i.overallCondition === 'RETIRE' ||
+      i.actionRequired === 'EARLY_REINSPECTION' || i.wearZoneStatus === 'CRITICAL'
+    )
+    if (hasRed) return 'RED' as TrafficLightColor
+    const hasAmber = inspections.some(i =>
+      i.actionRequired === 'MONITOR' || i.overallCondition === 'MARGINAL' ||
+      i.wearZoneStatus === 'MONITOR'
+    )
+    if (hasAmber) return 'AMBER' as TrafficLightColor
     return 'GREEN' as TrafficLightColor
   })
   if (tls.includes('RED')) return 'RED'
@@ -42,10 +49,9 @@ const TL_COLOR: Record<string, string> = {
         }
       </div>
 
-      <!-- SVG canvas (pointer-events none — read only) -->
+      <!-- SVG canvas -->
       <svg class="w-full block" viewBox="0 0 600 520"
-           [attr.preserveAspectRatio]="section() === 'bow' ? 'xMidYMax meet' : 'xMidYMid meet'"
-           style="pointer-events:none">
+           [attr.preserveAspectRatio]="section() === 'bow' ? 'xMidYMax meet' : 'xMidYMid meet'">
 
         <!-- BOW background -->
         @if (section() === 'bow') {
@@ -97,7 +103,9 @@ const TL_COLOR: Record<string, string> = {
 
         <!-- Items -->
         @for (item of visibleItems(); track item.id) {
-          <g [attr.transform]="'translate(' + item.x + ',' + item.y + ')'">
+          <g [attr.transform]="'translate(' + item.x + ',' + item.y + ')'"
+             style="cursor: pointer"
+             (click)="itemClick.emit(item)">
             <g [attr.transform]="'rotate(' + item.rotation + ',24,24)'">
 
               @if (item.type === 'basket') {
@@ -164,6 +172,7 @@ const TL_COLOR: Record<string, string> = {
 export class MooringCanvasReadonlyComponent {
   items = input<MooringItem[]>([])
   lines = input<MooringLine[]>([])
+  itemClick = output<MooringItem>()
 
   section = signal<CanvasSection>('bow')
   sections: CanvasSection[] = ['bow', 'deck', 'aft']

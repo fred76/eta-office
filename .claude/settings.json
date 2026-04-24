@@ -9,7 +9,8 @@
       "Bash(curl -s -X POST http://127.0.0.1:4000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@eta.com\",\"password\":\"admin123\"}')",
       "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"SELECT id, email, role FROM office_users;\")",
       "Bash(curl -s -X POST http://127.0.0.1:4000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@etaoffice.com\",\"password\":\"admin123\"}')",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('token ok' if 'token' in d else d\\)\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('token ok' if 'token' in d else d\\)\")",
+      "Bash(xargs ls *)"
     ]
   }
 }

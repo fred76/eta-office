@@ -1,11 +1,12 @@
 <div class="p-4">
 
   <!-- Mooring canvas -->
-  @if (shipSvc.$mooring()?.items?.length) {
+  @if (getItemsForCanvas().length) {
     <div class="mb-4">
       <app-mooring-canvas-readonly
-        [items]="shipSvc.$mooring()!.items"
-        [lines]="shipSvc.$mooring()!.lines" />
+        [items]="getItemsForCanvas()"
+        [lines]="getLinesForCanvas()"
+        (itemClick)="onItemClick($event)" />
     </div>
   }
 
@@ -23,133 +24,243 @@
       <div class="stat-title text-xs">Green</div>
       <div class="stat-value text-lg text-success">{{ greenCount }}</div>
     </div>
-    <div class="flex items-center">
-      <select class="select select-bordered select-sm" [ngModel]="filterStatus()"
-        (ngModelChange)="filterStatus.set($event)">
-        <option value="">All lines</option>
-        <option value="RED">Red only</option>
-        <option value="AMBER">Amber only</option>
-        <option value="GREEN">Green only</option>
-      </select>
-    </div>
   </div>
 
   @if (!shipSvc.$mooring() || shipSvc.$mooring()!.lines.length === 0) {
-  <div class="alert alert-info">No mooring data received yet.</div>
-  } @else {
-  <div class="overflow-x-auto">
-    <table class="table table-zebra table-sm">
-      <thead class="bg-primary text-primary-content">
-        <tr>
-          <th>Status</th>
-          <th>Label</th>
-          <th>Position</th>
-          <th>Material</th>
-          <th>Ø mm</th>
-          <th>Length m</th>
-          <th>WLL kN</th>
-          <th>Service hrs</th>
-          <th>Line status</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (line of filteredLines(); track line.id) {
-        <tr class="hover cursor-pointer" (click)="selected.set(line)">
-          <td><app-traffic-light [color]="trafficLight(line)" /></td>
-          <td class="font-medium">{{ line.label }}</td>
-          <td class="text-sm">{{ line.functionalPosition }}</td>
-          <td class="text-sm">{{ line.material }}</td>
-          <td>{{ line.diameterMm }}</td>
-          <td>{{ line.lengthM }}</td>
-          <td>{{ line.wllKn | number:'1.0-0' }}</td>
-          <td>{{ line.totalServiceHours | number:'1.0-0' }}</td>
-          <td><span class="badge badge-outline badge-sm">{{ line.status }}</span></td>
-        </tr>
-        } @empty {
-        <tr>
-          <td colspan="9" class="text-center text-base-content/40 py-6">No lines match filter</td>
-        </tr>
+    <div class="alert alert-info">No mooring data received yet.</div>
+  }
+
+  <!-- Item detail view (winch/spare) -->
+  @if (view() === 'item-detail' && selectedLine()) {
+    <div class="modal modal-open">
+      <div class="modal-box max-w-lg overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <app-traffic-light [color]="trafficLight(selectedLine()!)" />
+            <h3 class="font-bold text-lg">{{ selectedLine()!.label }}</h3>
+          </div>
+          <button class="btn btn-ghost btn-sm" (click)="closeDetail()">✕</button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div><span class="text-base-content/50">Material</span>
+            <p class="font-medium">{{ selectedLine()!.material }}</p>
+          </div>
+          <div><span class="text-base-content/50">Diameter</span>
+            <p class="font-medium">{{ selectedLine()!.diameterMm }} mm</p>
+          </div>
+          <div><span class="text-base-content/50">Length</span>
+            <p class="font-medium">{{ selectedLine()!.lengthM }} m</p>
+          </div>
+          <div><span class="text-base-content/50">LDBF</span>
+            <p class="font-medium">{{ selectedLine()!.ldbfKn }} kN</p>
+          </div>
+          <div><span class="text-base-content/50">WLL</span>
+            <p class="font-medium">{{ selectedLine()!.wllKn }} kN</p>
+          </div>
+          <div><span class="text-base-content/50">Status</span>
+            <p class="font-medium">{{ selectedLine()!.status }}</p>
+          </div>
+          <div><span class="text-base-content/50">Received</span>
+            <p class="font-medium">{{ selectedLine()!.receivedDate }}</p>
+          </div>
+          <div><span class="text-base-content/50">Service hrs</span>
+            <p class="font-medium">{{ selectedLine()!.totalServiceHours | number:'1.0-0' }}</p>
+          </div>
+          <div><span class="text-base-content/50">Operations</span>
+            <p class="font-medium">{{ selectedLine()!.totalOperations }}</p>
+          </div>
+          <div><span class="text-base-content/50">Position</span>
+            <p class="font-medium">{{ selectedLine()!.functionalPosition }}</p>
+          </div>
+
+          @if (selectedLine()!.inspections.length) {
+            <div class="col-span-2 divider text-xs my-1">Inspections</div>
+            <div class="contents">
+              @for (inspection of selectedLine()!.inspections; track inspection.date) {
+                <div class="col-span-2 bg-base-200/50 rounded p-2 mb-2">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="font-medium">{{ inspection.date }}</span>
+                    <span class="badge badge-sm" [class.badge-error]="inspection.actionRequired === 'RETIRE'"
+                      [class.badge-warning]="inspection.actionRequired === 'EARLY_REINSPECTION' || inspection.actionRequired === 'MONITOR'"
+                      [class.badge-success]="inspection.actionRequired === 'NONE' || !inspection.actionRequired">
+                      {{ inspection.actionRequired || 'NONE' }}
+                    </span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-2 text-xs">
+                    <div><span class="text-base-content/50">Type</span>
+                      <p>{{ inspection.type }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Condition</span>
+                      <p>{{ inspection.overallCondition }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Wear zone</span>
+                      <p>{{ inspection.wearZoneStatus }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Degradation</span>
+                      <p>{{ inspection.degradationPct }}%</p>
+                    </div>
+                  </div>
+                  @if (inspection.notes) {
+                    <div class="mt-1 text-xs"><span class="text-base-content/50">Notes</span>
+                      <p>{{ inspection.notes }}</p>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (selectedLine()!.wllExceedances.length) {
+            <div class="col-span-2 divider text-xs my-1">WLL Exceedances</div>
+            <div class="contents">
+              @for (exc of selectedLine()!.wllExceedances; track exc.id) {
+                <div class="col-span-2 bg-error/10 rounded p-2 mb-2 text-xs">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="font-medium">{{ exc.date }}</span>
+                    <span class="badge badge-sm badge-error">WLL EXCEEDED</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-2">
+                    <div><span class="text-base-content/50">Port</span>
+                      <p class="font-medium">{{ exc.port }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Cause</span>
+                      <p class="font-medium">{{ exc.cause }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Est. Load</span>
+                      <p class="font-medium">{{ exc.estimatedLoadKn }} kN</p>
+                    </div>
+                    <div><span class="text-base-content/50">Meters Cut</span>
+                      <p class="font-medium">{{ exc.metersCut }} m</p>
+                    </div>
+                    <div><span class="text-base-content/50">Post-Inspection</span>
+                      <p class="font-medium">{{ exc.postInspection ? (exc.postInspectionOk ? 'OK' : 'FAILED') : 'Not done' }}</p>
+                    </div>
+                  </div>
+                  @if (exc.notes) {
+                    <div class="mt-1"><span class="text-base-content/50">Notes</span>
+                      <p>{{ exc.notes }}</p>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (selectedLine()!.endForEndHistory.length) {
+            <div class="col-span-2 divider text-xs my-1">End-for-End History</div>
+            <div class="contents">
+              @for (e of selectedLine()!.endForEndHistory; track e.id) {
+                <div class="col-span-2 bg-base-200/50 rounded p-2 mb-2 text-xs">
+                  <div class="flex justify-between items-center">
+                    <span class="font-medium">{{ e.date }}</span>
+                    <span class="badge badge-sm badge-outline">E-F-E</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-2 mt-1">
+                    <div><span class="text-base-content/50">Port</span>
+                      <p>{{ e.port }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Officer</span>
+                      <p>{{ e.officer }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Hours</span>
+                      <p>{{ e.hoursAtTime }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">Ops</span>
+                      <p>{{ e.opsAtTime }}</p>
+                    </div>
+                    @if (e.notes) {
+                      <div class="col-span-2"><span class="text-base-content/50">Notes</span>
+                        <p>{{ e.notes }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (selectedLine()!.locationHistory.length) {
+            <div class="col-span-2 divider text-xs my-1">Location History</div>
+            <div class="contents">
+              @for (loc of selectedLine()!.locationHistory; track loc.id) {
+                <div class="col-span-2 bg-base-200/50 rounded p-2 mb-2 text-xs">
+                  <div class="flex justify-between items-center">
+                    <span class="font-medium">{{ loc.date }}</span>
+                    <span class="badge badge-sm badge-outline">Moved</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-2">
+                    <div><span class="text-base-content/50">From</span>
+                      <p>{{ loc.fromItemId || 'None' }}</p>
+                    </div>
+                    <div><span class="text-base-content/50">To</span>
+                      <p>{{ loc.toItemId }}</p>
+                    </div>
+                    <div class="col-span-2"><span class="text-base-content/50">Officer</span>
+                      <p>{{ loc.officer }}</p>
+                    </div>
+                    @if (loc.notes) {
+                      <div class="col-span-2"><span class="text-base-content/50">Notes</span>
+                        <p>{{ loc.notes }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="modal-backdrop" (click)="closeDetail()"></div>
+    </div>
+  }
+
+  <!-- Basket detail view -->
+  @if (view() === 'basket-detail' && selectedItem()) {
+    <div class="modal modal-open">
+      <div class="modal-box max-w-md overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <span class="material-icons text-2xl">cable</span>
+            <h3 class="font-bold text-lg">Basket {{ getItemLabel(selectedItem()!) }}</h3>
+          </div>
+          <button class="btn btn-ghost btn-sm" (click)="closeDetail()">✕</button>
+        </div>
+
+        <div class="text-sm mb-4">
+          <span class="text-base-content/50">Lines</span>
+          <p class="font-medium">{{ selectedItem()!.lineIds.length }} line{{ selectedItem()!.lineIds.length !== 1 ? 's' : '' }}</p>
+        </div>
+
+        @if (basketLines().length === 0) {
+          <div class="text-center opacity-40 py-8">No lines in this basket</div>
+        } @else {
+          <div class="flex flex-col gap-2">
+            @for (line of basketLines(); track line.id) {
+              <div class="rounded-xl border border-base-300 p-3 flex items-center gap-3 cursor-pointer hover:bg-base-200 transition-colors"
+                   (click)="onLineClick(line)">
+                <span class="text-2xl w-8 text-center">
+                  @switch (trafficLight(line)) {
+                    @case ('RED') { <span class="text-red-500">●</span> }
+                    @case ('AMBER') { <span class="text-amber-400">●</span> }
+                    @case ('GREEN') { <span class="text-green-500">●</span> }
+                    @default { <span class="text-gray-400">●</span> }
+                  }
+                </span>
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-sm">{{ line.label }}</div>
+                  <div class="text-xs opacity-50 truncate">
+                    {{ line.functionalPosition }} · {{ line.status.replace('_', ' ') }}
+                  </div>
+                </div>
+                <span class="material-icons opacity-40">chevron_right</span>
+              </div>
+            }
+          </div>
         }
-      </tbody>
-    </table>
-  </div>
+      </div>
+      <div class="modal-backdrop" (click)="closeDetail()"></div>
+    </div>
   }
 
 </div>
-
-<!-- Line detail drawer -->
-@if (selected()) {
-<div class="fixed inset-0 z-50 flex">
-  <div class="flex-1 bg-black/40" (click)="selected.set(null)"></div>
-  <div class="w-[440px] bg-base-100 overflow-y-auto p-6 shadow-2xl">
-    <div class="flex justify-between items-center mb-4">
-      <div class="flex items-center gap-2">
-        <app-traffic-light [color]="trafficLight(selected()!)" />
-        <h3 class="font-bold text-lg">{{ selected()!.label }}</h3>
-      </div>
-      <button class="btn btn-ghost btn-sm" (click)="selected.set(null)">✕</button>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3 text-sm">
-      <div><span class="text-base-content/50">Material</span>
-        <p class="font-medium">{{ selected()!.material }}</p>
-      </div>
-      <div><span class="text-base-content/50">Diameter</span>
-        <p class="font-medium">{{ selected()!.diameterMm }} mm</p>
-      </div>
-      <div><span class="text-base-content/50">Length</span>
-        <p class="font-medium">{{ selected()!.lengthM }} m</p>
-      </div>
-      <div><span class="text-base-content/50">LDBF</span>
-        <p class="font-medium">{{ selected()!.ldbfKn }} kN</p>
-      </div>
-      <div><span class="text-base-content/50">WLL</span>
-        <p class="font-medium">{{ selected()!.wllKn }} kN</p>
-      </div>
-      <div><span class="text-base-content/50">Status</span>
-        <p class="font-medium">{{ selected()!.status }}</p>
-      </div>
-      <div><span class="text-base-content/50">Received</span>
-        <p class="font-medium">{{ selected()!.receivedDate }}</p>
-      </div>
-      <div><span class="text-base-content/50">Service hrs</span>
-        <p class="font-medium">{{ selected()!.totalServiceHours | number:'1.0-0' }}</p>
-      </div>
-      <div><span class="text-base-content/50">Operations</span>
-        <p class="font-medium">{{ selected()!.totalOperations }}</p>
-      </div>
-      <div><span class="text-base-content/50">Position</span>
-        <p class="font-medium">{{ selected()!.functionalPosition }}</p>
-      </div>
-
-      @if (selected()!.inspections.length) {
-      <div class="col-span-2 divider text-xs my-1">Last Inspection</div>
-      @let last = selected()!.inspections[selected()!.inspections.length - 1];
-      <div><span class="text-base-content/50">Date</span>
-        <p class="font-medium">{{ last.date }}</p>
-      </div>
-      <div><span class="text-base-content/50">Type</span>
-        <p class="font-medium">{{ last.type }}</p>
-      </div>
-      <div><span class="text-base-content/50">Condition</span>
-        <p class="font-medium">{{ last.overallCondition }}</p>
-      </div>
-      <div><span class="text-base-content/50">Wear zone</span>
-        <p class="font-medium">{{ last.wearZoneStatus }}</p>
-      </div>
-      <div><span class="text-base-content/50">Degradation</span>
-        <p class="font-medium">{{ last.degradationPct }}%</p>
-      </div>
-      <div><span class="text-base-content/50">Action</span>
-        <p class="font-medium">{{ last.actionRequired }}</p>
-      </div>
-      @if (last.notes) {
-      <div class="col-span-2"><span class="text-base-content/50">Notes</span>
-        <p>{{ last.notes }}</p>
-      </div>
-      }
-      }
-    </div>
-  </div>
-</div>
-}
