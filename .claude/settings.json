@@ -13,6 +13,9 @@
       "Bash(xargs ls *)",
       "Bash(git -C /Users/albertolunardini/Developper/eta-office log --oneline --all)",
       "Bash(git -C /Users/albertolunardini/Developper/eta-office remote -v)"
+    ],
+    "additionalDirectories": [
+      "/Users/albertolunardini/Developper/ETA"
     ]
   }
 }

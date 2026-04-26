@@ -40,3 +40,7 @@
 2026-04-26 11:54:28: ETA Office server → http://0.0.0.0:4000
 2026-04-26 11:54:40: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
 2026-04-26 11:54:40: ETA Office server → http://0.0.0.0:4000
+2026-04-26 12:03:34: ◇ injected env (2) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+2026-04-26 12:03:34: ETA Office server → http://0.0.0.0:4000
+2026-04-26 12:04:09: ◇ injected env (2) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+2026-04-26 12:04:09: ETA Office server → http://0.0.0.0:4000

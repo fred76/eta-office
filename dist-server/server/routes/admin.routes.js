@@ -60,7 +60,6 @@ exports.adminRouter.get('/sync-log', auth_1.requireAdmin, async (_req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-// All ships including inactive (for admin view)
 exports.adminRouter.get('/ships', auth_1.requireAdmin, async (_req, res) => {
     try {
         const rows = await client_1.db.select({
@@ -79,7 +78,6 @@ exports.adminRouter.get('/ships', auth_1.requireAdmin, async (_req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-// Request full sync from ship on next connection
 exports.adminRouter.post('/ships/:shipId/request-sync', auth_1.requireAdmin, async (req, res) => {
     try {
         const id = req.params['shipId'];
@@ -94,12 +92,10 @@ exports.adminRouter.post('/ships/:shipId/request-sync', auth_1.requireAdmin, asy
         res.status(500).json({ error: err.message });
     }
 });
-// Restart server (PM2 auto-restarts on process.exit)
 exports.adminRouter.post('/restart', auth_1.requireAdmin, (_req, res) => {
     res.json({ ok: true });
     setTimeout(() => process.exit(0), 200);
 });
-// Set ship active/inactive (out of service)
 exports.adminRouter.patch('/ships/:shipId/status', auth_1.requireAdmin, async (req, res) => {
     try {
         const { active } = req.body;
@@ -112,7 +108,6 @@ exports.adminRouter.patch('/ships/:shipId/status', auth_1.requireAdmin, async (r
         res.status(500).json({ error: err.message });
     }
 });
-// Delete ship and all associated data
 exports.adminRouter.delete('/ships/:shipId', auth_1.requireAdmin, async (req, res) => {
     try {
         const id = req.params['shipId'];
