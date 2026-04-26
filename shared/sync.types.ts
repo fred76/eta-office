@@ -1,6 +1,7 @@
 import type { RotationModel, MachineryModel } from './rotation-machinery.interface'
 import type { NoonPosition } from './noon-position.model'
 import type { MooringLine, MooringItem } from './mooring-line.model'
+import type { PortWithBerths } from './sailing-direction.interface'
 
 export interface SyncPayload {
   shipId:      string
@@ -17,6 +18,7 @@ export interface SyncPayload {
     items: MooringItem[]
     lines: MooringLine[]
   } | null
+  sailingDirection: { ports: PortWithBerths[] } | null
 }
 
 export interface SyncResponse {

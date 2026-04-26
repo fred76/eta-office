@@ -47,3 +47,11 @@ exports.shipRouter.get('/:shipId/sync-log', auth_1.requireAuth, async (req, res)
         res.status(500).json({ error: err.message });
     }
 });
+exports.shipRouter.get('/:shipId/sailing-direction', auth_1.requireAuth, async (req, res) => {
+    try {
+        res.json(await shipService.getSailingDirection(req.params['shipId']));
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});

@@ -27,6 +27,12 @@ export const shipDetailRoutes: Routes = [
         loadComponent: () =>
           import('./sync-log/ship-sync-log.component').then(m => m.ShipSyncLogComponent),
       },
+      {
+        path: 'sailing-direction',
+        loadComponent: () =>
+          import('./sailing-direction/ship-sailing-direction.component')
+            .then(m => m.ShipSailingDirectionComponent),
+      },
     ],
   },
 ]

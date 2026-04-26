@@ -37,7 +37,7 @@ export class AuthService {
     localStorage.setItem('eta_role', res.role)
     this.$token.set(res.token)
     this.$role.set(res.role)
-    await this.router.navigate(['/dashboard'])
+    await this.router.navigate(['/fleet'])
   }
 
   logout(): void {

@@ -2,6 +2,7 @@ import { db } from '../db/client'
 
 export async function getFleetReport() {
   const ships = await db.query.ships.findMany({
+    where: (s, { eq }) => eq(s.active, 1),
     with: {
       rotationLatest:  true,
       mooringLatest:   true,

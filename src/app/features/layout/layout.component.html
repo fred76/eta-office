@@ -13,10 +13,6 @@
     </div>
 
     <nav class="flex flex-col gap-1 p-2 flex-1">
-      <a routerLink="/dashboard" routerLinkActive="bg-primary-content/20"
-         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
-        <span class="material-icons text-lg">dashboard</span> Dashboard
-      </a>
       <a routerLink="/fleet" routerLinkActive="bg-primary-content/20"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
         <span class="material-icons text-lg">directions_boat</span> Fleet
@@ -25,6 +21,12 @@
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
         <span class="material-icons text-lg">bar_chart</span> Reports
       </a>
+      @if (auth.isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="bg-primary-content/20"
+           class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-primary-content/10 transition-colors">
+          <span class="material-icons text-lg">admin_panel_settings</span> Admin
+        </a>
+      }
     </nav>
 
     <div class="p-2 border-t border-primary-content/20">

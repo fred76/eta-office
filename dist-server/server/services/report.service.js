@@ -4,6 +4,7 @@ exports.getFleetReport = getFleetReport;
 const client_1 = require("../db/client");
 async function getFleetReport() {
     const ships = await client_1.db.query.ships.findMany({
+        where: (s, { eq }) => eq(s.active, 1),
         with: {
             rotationLatest: true,
             mooringLatest: true,

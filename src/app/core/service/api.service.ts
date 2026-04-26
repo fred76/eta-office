@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs'
 import type { ShipSummary, AuthResponse, SyncReceipt } from '../models/fleet.model'
 import type { RotationModel, MachineryModel } from '../../../../shared/rotation-machinery.interface'
 import type { NoonPosition } from '../../../../shared/noon-position.model'
+import type { PortWithBerths } from '../../../../shared/sailing-direction.interface'
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -44,6 +45,10 @@ export class ApiService {
     return firstValueFrom(this.http.get<SyncReceipt[]>(`/api/ship/${shipId}/sync-log`))
   }
 
+  getShipSailingDirection(shipId: string): Promise<PortWithBerths[]> {
+    return firstValueFrom(this.http.get<PortWithBerths[]>(`/api/ship/${shipId}/sailing-direction`))
+  }
+
   getFleetReport(): Promise<FleetReportRow[]> {
     return firstValueFrom(this.http.get<FleetReportRow[]>('/api/reports'))
   }
@@ -54,6 +59,36 @@ export class ApiService {
 
   regenToken(shipId: string): Promise<{ syncToken: string }> {
     return firstValueFrom(this.http.post<{ syncToken: string }>(`/api/fleet/${shipId}/regen-token`, {}))
+  }
+
+  // Admin
+  getAdminInfo(): Promise<{ uptime: number; nodeVersion: string; env: string; port: number }> {
+    return firstValueFrom(this.http.get<{ uptime: number; nodeVersion: string; env: string; port: number }>('/api/admin/info'))
+  }
+
+  getAdminSyncLog(limit?: number): Promise<any[]> {
+    const url = limit ? `/api/admin/sync-log?limit=${limit}` : '/api/admin/sync-log'
+    return firstValueFrom(this.http.get<any[]>(url))
+  }
+
+  getAllShipsAdmin(): Promise<{ id: string; name: string; imoNumber: string | null; lastSyncAt: string | null; active: number; forceFullSync: number }[]> {
+    return firstValueFrom(this.http.get<any[]>('/api/admin/ships'))
+  }
+
+  requestSync(shipId: string): Promise<{ ok: boolean }> {
+    return firstValueFrom(this.http.post<{ ok: boolean }>(`/api/admin/ships/${shipId}/request-sync`, {}))
+  }
+
+  restartServer(): Promise<{ ok: boolean }> {
+    return firstValueFrom(this.http.post<{ ok: boolean }>('/api/admin/restart', {}))
+  }
+
+  setShipStatus(shipId: string, active: boolean): Promise<{ ok: boolean }> {
+    return firstValueFrom(this.http.patch<{ ok: boolean }>(`/api/admin/ships/${shipId}/status`, { active }))
+  }
+
+  deleteShip(shipId: string): Promise<{ ok: boolean }> {
+    return firstValueFrom(this.http.delete<{ ok: boolean }>(`/api/admin/ships/${shipId}`))
   }
 }
 

@@ -52,6 +52,17 @@ const SyncPayloadSchema = z.object({
     items: z.array(z.any()),
     lines: z.array(z.any()),
   }).nullable(),
+  sailingDirection: z.object({
+    ports: z.array(z.any()),
+  }).nullable().optional(),
+})
+
+syncRouter.get('/info', (_req, res) => {
+  res.json({
+    uptime: process.uptime(),
+    nodeVersion: process.version,
+    env: process.env['NODE_ENV'] ?? 'development',
+  })
 })
 
 syncRouter.post('/', syncLimiter, async (req, res, next) => {

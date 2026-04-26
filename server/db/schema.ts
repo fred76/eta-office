@@ -1,5 +1,6 @@
 import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core'
 import { relations } from 'drizzle-orm'
+import type { PortWithBerths } from '../../shared/sailing-direction.interface'
 
 export const ships = sqliteTable('ships', {
   id:                   text('id').primaryKey(),
@@ -10,6 +11,8 @@ export const ships = sqliteTable('ships', {
   syncToken:            text('sync_token').notNull().unique(),
   lastSyncAt:           text('last_sync_at'),
   lastReceivedVersion:  integer('last_received_version').notNull().default(0),
+  active:               integer('active').notNull().default(1),
+  forceFullSync:        integer('forceFullSync').notNull().default(0),
   createdAt:            text('created_at').$defaultFn(() => new Date().toISOString()),
 })
 
@@ -67,6 +70,12 @@ export const mooringLatest = sqliteTable('mooring_latest', {
   lines:      text('lines', { mode: 'json' }).notNull(),
 })
 
+export const sailingDirectionLatest = sqliteTable('sailing_direction_latest', {
+  shipId:     text('ship_id').primaryKey().references(() => ships.id),
+  snapshotAt: text('snapshot_at'),
+  data:       text('data', { mode: 'json' }).$type<PortWithBerths[]>().notNull(),
+})
+
 // Relations
 export const shipsRelations = relations(ships, ({ one, many }) => ({
   rotationLatest:  one(rotationLatest,  { fields: [ships.id], references: [rotationLatest.shipId] }),
@@ -86,6 +95,10 @@ export const machineryLatestRelations = relations(machineryLatest, ({ one }) => 
 
 export const mooringLatestRelations = relations(mooringLatest, ({ one }) => ({
   ship: one(ships, { fields: [mooringLatest.shipId], references: [ships.id] }),
+}))
+
+export const sailingDirectionLatestRelations = relations(sailingDirectionLatest, ({ one }) => ({
+  ship: one(ships, { fields: [sailingDirectionLatest.shipId], references: [ships.id] }),
 }))
 
 export const syncReceiptsRelations = relations(syncReceipts, ({ one }) => ({

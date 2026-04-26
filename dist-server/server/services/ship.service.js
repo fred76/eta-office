@@ -5,6 +5,7 @@ exports.getMachinery = getMachinery;
 exports.getNoonPositions = getNoonPositions;
 exports.getMooring = getMooring;
 exports.getSyncLog = getSyncLog;
+exports.getSailingDirection = getSailingDirection;
 const drizzle_orm_1 = require("drizzle-orm");
 const client_1 = require("../db/client");
 const schema_1 = require("../db/schema");
@@ -39,4 +40,10 @@ async function getSyncLog(shipId, limit = 100) {
         .where((0, drizzle_orm_1.eq)(schema_1.syncReceipts.shipId, shipId))
         .orderBy((0, drizzle_orm_1.desc)(schema_1.syncReceipts.receivedAt))
         .limit(limit);
+}
+async function getSailingDirection(shipId) {
+    const row = await client_1.db.query.sailingDirectionLatest.findFirst({
+        where: (s, { eq }) => eq(s.shipId, shipId),
+    });
+    return row?.data ?? [];
 }

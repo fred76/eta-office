@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core'
-import { RouterOutlet, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router'
+import { RouterOutlet, ActivatedRoute } from '@angular/router'
 import { ShipService } from '../../core/service/ship.service'
 import { ShipHeaderComponent } from '../../shared/ship-header.component'
+import { ShipBottomNavComponent } from './ship-bottom-nav.component'
 
 @Component({
   selector: 'app-ship-detail',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, ShipHeaderComponent],
+  imports: [RouterOutlet, ShipHeaderComponent, ShipBottomNavComponent],
   templateUrl: './ship-detail.component.html',
 })
 export class ShipDetailComponent implements OnInit, OnDestroy {
@@ -16,6 +17,7 @@ export class ShipDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const shipId = this.route.snapshot.paramMap.get('id')!
     this.shipSvc.loadShip(shipId)
+    this.shipSvc.loadSailingDirection(shipId)
   }
 
   ngOnDestroy(): void {

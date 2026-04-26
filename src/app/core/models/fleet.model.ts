@@ -9,6 +9,7 @@ export interface ShipSummary {
   lastSyncAt: string | null
   rotation: RotationModel | null
   mooringRedCount: number
+  active: number
 }
 
 export interface AuthResponse {

@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, computed } from '@angular/core'
-import { DecimalPipe } from '@angular/common'
+import { Component, inject, OnInit, signal, computed } from '@angular/core'
+import { DecimalPipe, DatePipe } from '@angular/common'
 import * as XLSX from 'xlsx'
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts'
 import * as echarts from 'echarts/core'
@@ -10,6 +10,7 @@ import {
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { ReportService } from '../../core/service/report.service'
+import { ApiService } from '../../core/service/api.service'
 import { SyncBadgeComponent } from '../../shared/sync-badge.component'
 
 echarts.use([
@@ -20,15 +21,48 @@ echarts.use([
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [DecimalPipe, NgxEchartsDirective, SyncBadgeComponent],
+  imports: [DecimalPipe, DatePipe, NgxEchartsDirective, SyncBadgeComponent],
   providers: [provideEchartsCore({ echarts })],
   templateUrl: './reports.component.html',
 })
 export class ReportsComponent implements OnInit {
   protected reportSvc = inject(ReportService)
+  private api = inject(ApiService)
+
+  expandedShipId = signal<string | null>(null)
+  noonCache = signal<Record<string, any[]>>({})
+  noonLoading = signal<string | null>(null)
 
   ngOnInit(): void {
     this.reportSvc.load()
+  }
+
+  foPerDay(row: { foConsumedMt: number | null; lastSyncAt: string | null }): number | null {
+    if (!row.lastSyncAt || !row.foConsumedMt) return null
+    const days = (Date.now() - new Date(row.lastSyncAt).getTime()) / (1000 * 60 * 60 * 24)
+    return days > 0 ? row.foConsumedMt / days : null
+  }
+
+  doPerDay(row: { doConsumedMt: number | null; lastSyncAt: string | null }): number | null {
+    if (!row.lastSyncAt || !row.doConsumedMt) return null
+    const days = (Date.now() - new Date(row.lastSyncAt).getTime()) / (1000 * 60 * 60 * 24)
+    return days > 0 ? row.doConsumedMt / days : null
+  }
+
+  async toggleNoon(shipId: string) {
+    if (this.expandedShipId() === shipId) {
+      this.expandedShipId.set(null)
+      return
+    }
+    this.expandedShipId.set(shipId)
+    if (this.noonCache()[shipId]) return
+    this.noonLoading.set(shipId)
+    try {
+      const data = await this.api.getNoonPositions(shipId)
+      this.noonCache.update(c => ({ ...c, [shipId]: data }))
+    } finally {
+      this.noonLoading.set(null)
+    }
   }
 
   bunkerChartOptions = computed(() => {

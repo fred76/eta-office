@@ -15,6 +15,20 @@
       "when": 1776800000000,
       "tag": "0001_incremental_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776900000000,
+      "tag": "0002_sailing_direction",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1776900000001,
+      "tag": "0003_ship_active",
+      "breakpoints": true
     }
   ]
 }

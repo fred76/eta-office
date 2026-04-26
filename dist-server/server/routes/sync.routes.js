@@ -54,6 +54,16 @@ const SyncPayloadSchema = zod_1.z.object({
         items: zod_1.z.array(zod_1.z.any()),
         lines: zod_1.z.array(zod_1.z.any()),
     }).nullable(),
+    sailingDirection: zod_1.z.object({
+        ports: zod_1.z.array(zod_1.z.any()),
+    }).nullable().optional(),
+});
+exports.syncRouter.get('/info', (_req, res) => {
+    res.json({
+        uptime: process.uptime(),
+        nodeVersion: process.version,
+        env: process.env['NODE_ENV'] ?? 'development',
+    });
 });
 exports.syncRouter.post('/', syncLimiter, async (req, res, next) => {
     const ship = req.ship;

@@ -12,3 +12,6 @@
   code: 'ERR_ERL_KEY_GEN_IPV6',
   help: 'https://express-rate-limit.github.io/ERR_ERL_KEY_GEN_IPV6/'
 }
+2026-04-25 22:41:28: Error: ENOENT: no such file or directory, stat '/Users/albertolunardini/Developper/eta-office/dist/eta-office/browser/index.html'
+2026-04-25 22:42:02: Error: ENOENT: no such file or directory, stat '/Users/albertolunardini/Developper/eta-office/dist/eta-office/browser/index.html'
+2026-04-25 22:42:02: Error: ENOENT: no such file or directory, stat '/Users/albertolunardini/Developper/eta-office/dist/eta-office/browser/index.html'

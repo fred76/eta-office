@@ -3,7 +3,9 @@ import { db } from '../db/client'
 import {
   rotationLatest, machineryLatest,
   noonPositions, mooringLatest, syncReceipts,
+  sailingDirectionLatest,
 } from '../db/schema'
+import type { PortWithBerths } from '../../shared/sailing-direction.interface'
 
 export async function getRotation(shipId: string) {
   const row = await db.query.rotationLatest.findFirst({
@@ -40,4 +42,11 @@ export async function getSyncLog(shipId: string, limit = 100) {
     .where(eq(syncReceipts.shipId, shipId))
     .orderBy(desc(syncReceipts.receivedAt))
     .limit(limit)
+}
+
+export async function getSailingDirection(shipId: string): Promise<PortWithBerths[]> {
+  const row = await db.query.sailingDirectionLatest.findFirst({
+    where: (s, { eq }) => eq(s.shipId, shipId),
+  })
+  return (row?.data as PortWithBerths[]) ?? []
 }

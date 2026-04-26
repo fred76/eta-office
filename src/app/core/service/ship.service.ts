@@ -5,6 +5,7 @@ import type { RotationModel } from '../../../../shared/rotation-machinery.interf
 import type { MachineryModel } from '../../../../shared/rotation-machinery.interface'
 import type { NoonPosition } from '../../../../shared/noon-position.model'
 import type { MooringLine, MooringItem } from '../../../../shared/mooring-line.model'
+import type { PortWithBerths } from '../../../../shared/sailing-direction.interface'
 
 @Injectable({ providedIn: 'root' })
 export class ShipService {
@@ -15,6 +16,7 @@ export class ShipService {
   $machinery = signal<MachineryModel | null>(null)
   $noon      = signal<NoonPosition[]>([])
   $mooring   = signal<{ items: MooringItem[]; lines: MooringLine[] } | null>(null)
+  $sailingDirection = signal<PortWithBerths[]>([])
   $syncLog   = signal<SyncReceipt[]>([])
   $loading   = signal(false)
   $error     = signal<string | null>(null)
@@ -54,6 +56,13 @@ export class ShipService {
     } catch { /* keep current state */ }
   }
 
+  async loadSailingDirection(shipId: string): Promise<void> {
+    try {
+      const data = await this.api.getShipSailingDirection(shipId)
+      this.$sailingDirection.set(data)
+    } catch { /* keep current state */ }
+  }
+
   async loadSyncLog(shipId: string): Promise<void> {
     try {
       this.$syncLog.set(await this.api.getSyncLog(shipId))
@@ -66,6 +75,7 @@ export class ShipService {
     this.$machinery.set(null)
     this.$noon.set([])
     this.$mooring.set(null)
+    this.$sailingDirection.set([])
     this.$syncLog.set([])
     this.$error.set(null)
   }

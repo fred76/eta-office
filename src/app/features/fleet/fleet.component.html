@@ -1,9 +1,19 @@
 <div class="p-6">
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold text-primary">Fleet</h1>
-    @if (authSvc.isAdmin()) {
-      <button class="btn btn-primary btn-sm" (click)="openAdd()">+ Add ship</button>
-    }
+    <div class="flex gap-2">
+      @if (authSvc.isAdmin()) {
+        <button class="btn btn-primary btn-sm" (click)="openAdd()">+ Add Ship</button>
+      }
+      <div class="join">
+        <button class="btn btn-sm join-item" [class.btn-active]="viewMode() === 'card'" (click)="viewMode.set('card')">
+          <span class="material-icons text-sm">grid_view</span>
+        </button>
+        <button class="btn btn-sm join-item" [class.btn-active]="viewMode() === 'list'" (click)="viewMode.set('list')">
+          <span class="material-icons text-sm">view_list</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   @if (fleetSvc.$loading()) {
@@ -12,7 +22,81 @@
     </div>
   } @else if (fleetSvc.$error()) {
     <div class="alert alert-error">{{ fleetSvc.$error() }}</div>
+  } @else if (fleetSvc.$ships().length === 0) {
+    <div class="alert alert-info">No ships registered yet.</div>
+  } @else if (viewMode() === 'card') {
+    <!-- Card View -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      @for (ship of fleetSvc.$ships(); track ship.id) {
+        <div class="card bg-base-200 shadow-md">
+          <div class="card-body">
+            <!-- Header -->
+            <div class="flex justify-between items-start">
+              <div class="cursor-pointer" [routerLink]="['/ship', ship.id]">
+                <h2 class="card-title text-primary">{{ ship.name }}</h2>
+                <p class="text-sm text-base-content/60">
+                  @if (ship.imoNumber) { IMO {{ ship.imoNumber }} }
+                  @if (ship.vesselType) { &nbsp;·&nbsp; {{ ship.vesselType }} }
+                </p>
+              </div>
+              <app-sync-badge [lastSyncAt]="ship.lastSyncAt" />
+            </div>
+
+            <!-- Rotation data -->
+            @if (ship.rotation) {
+              <div class="divider my-1"></div>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span class="text-base-content/50 text-xs">From</span>
+                  <p class="font-medium truncate">{{ firstPort(ship.rotation) }}</p>
+                </div>
+                <div>
+                  <span class="text-base-content/50 text-xs">Next port</span>
+                  <p class="font-medium truncate">{{ nextPort(ship.rotation) }}</p>
+                </div>
+                <div>
+                  <span class="text-base-content/50 text-xs">ROB FO</span>
+                  <p class="font-medium">{{ currentRobFO(ship.rotation) | number:'1.0-0' }} MT</p>
+                </div>
+                <div>
+                  <span class="text-base-content/50 text-xs">ROB DO</span>
+                  <p class="font-medium">{{ currentRobDO(ship.rotation) | number:'1.0-0' }} MT</p>
+                </div>
+              </div>
+            } @else {
+              <p class="text-sm text-base-content/40 mt-2">No rotation data yet</p>
+            }
+
+            <!-- Mooring alert -->
+            @if (ship.mooringRedCount > 0) {
+              <div class="alert alert-error py-1 mt-2">
+                <span class="material-icons text-sm">warning</span>
+                <span class="text-xs">{{ ship.mooringRedCount }} mooring line(s) require attention</span>
+              </div>
+            }
+
+            <!-- Admin actions -->
+            @if (authSvc.isAdmin()) {
+              <div class="divider my-1"></div>
+              <div class="flex justify-between items-center">
+                <button class="btn btn-ghost btn-xs" [routerLink]="['/ship', ship.id]">View →</button>
+                <button class="btn btn-ghost btn-xs"
+                        [disabled]="regenLoading() === ship.id"
+                        (click)="regenToken(ship.id, ship.name)">
+                  @if (regenLoading() === ship.id) {
+                    <span class="loading loading-spinner loading-xs"></span>
+                  } @else {
+                    <span class="material-icons text-sm">key</span> Regen
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
   } @else {
+    <!-- List View -->
     <div class="overflow-x-auto">
       <table class="table table-zebra">
         <thead class="bg-primary text-primary-content">
@@ -30,7 +114,7 @@
           @for (ship of fleetSvc.$ships(); track ship.id) {
             <tr class="hover">
               <td class="font-medium cursor-pointer" [routerLink]="['/ship', ship.id]">{{ ship.name }}</td>
-              <td class="text-base-content/60">{{ ship.imoNumber ?? '—' }}</td>
+              <td class="text-base-content/60">{{ ship.imoNumber ?? '—" }}</td>
               <td>{{ ship.flag ?? '—' }}</td>
               <td>
                 @if (ship.vesselType) {

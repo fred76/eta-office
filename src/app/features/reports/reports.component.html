@@ -11,57 +11,133 @@
     <div class="alert alert-info">No ships with data yet.</div>
   } @else {
 
-    <!-- Bunker consumption chart -->
-    <div class="card bg-base-200 mb-6 shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title text-base">Bunker Consumption by Vessel</h2>
-        <div echarts [options]="bunkerChartOptions()" class="h-64"></div>
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body py-4">
+          <p class="text-sm text-base-content/60">FO Fleet</p>
+          <p class="text-2xl font-bold">{{ reportSvc.totalFoMt() | number:'1.0-0' }} <span class="text-sm font-normal">MT</span></p>
+        </div>
+      </div>
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body py-4">
+          <p class="text-sm text-base-content/60">DO Fleet</p>
+          <p class="text-2xl font-bold">{{ reportSvc.totalDoMt() | number:'1.0-0' }} <span class="text-sm font-normal">MT</span></p>
+        </div>
+      </div>
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body py-4">
+          <p class="text-sm text-base-content/60">Avg Speed</p>
+          <p class="text-2xl font-bold">{{ reportSvc.avgFleetSpeed() != null ? (reportSvc.avgFleetSpeed() | number:'1.1-1') : '—' }} <span class="text-sm font-normal">kts</span></p>
+        </div>
+      </div>
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body py-4">
+          <p class="text-sm text-base-content/60">Synced</p>
+          <p class="text-2xl font-bold">{{ reportSvc.syncedCount() }} <span class="text-sm font-normal">/ {{ reportSvc.$report().length }}</span></p>
+        </div>
       </div>
     </div>
 
-    <!-- Average speed chart -->
-    <div class="card bg-base-200 mb-6 shadow-sm">
-      <div class="card-body">
-        <h2 class="card-title text-base">Average Speed by Vessel</h2>
-        <div echarts [options]="speedChartOptions()" class="h-48"></div>
+    <!-- Charts side by side -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title text-base">Bunker Consumption</h2>
+          <div echarts [options]="bunkerChartOptions()" class="h-64"></div>
+        </div>
+      </div>
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title text-base">Average Speed</h2>
+          <div echarts [options]="speedChartOptions()" class="h-64"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Mooring status table -->
+    <!-- Table with expandable rows -->
     <div class="card bg-base-200 shadow-sm">
       <div class="card-body">
         <div class="flex justify-between items-center">
-          <h2 class="card-title text-base">Mooring Status — Fleet Overview</h2>
+          <h2 class="card-title text-base">Fleet Details</h2>
           <button class="btn btn-sm btn-outline" (click)="exportExcel()">Export Excel</button>
         </div>
         <div class="overflow-x-auto mt-2">
           <table class="table table-sm">
             <thead class="bg-primary text-primary-content">
               <tr>
+                <th></th>
                 <th>Vessel</th>
                 <th>Last sync</th>
-                <th>FO cons (MT)</th>
-                <th>DO cons (MT)</th>
-                <th>Avg speed</th>
-                <th class="text-error"><span class="material-icons text-sm align-middle">circle</span> Red</th>
-                <th class="text-warning"><span class="material-icons text-sm align-middle">circle</span> Amber</th>
-                <th class="text-success"><span class="material-icons text-sm align-middle">circle</span> Green</th>
-                <th>Total lines</th>
+                <th>FO (MT)</th>
+                <th>DO (MT)</th>
+                <th>FO/day</th>
+                <th>Avg kts</th>
+                <th>Mooring</th>
               </tr>
             </thead>
             <tbody>
               @for (row of reportSvc.$report(); track row.shipId) {
                 <tr class="hover">
+                  <td>
+                    <button class="btn btn-ghost btn-xs btn-square" (click)="toggleNoon(row.shipId)">
+                      <span class="material-icons text-sm">{{ expandedShipId() === row.shipId ? 'expand_less' : 'expand_more' }}</span>
+                    </button>
+                  </td>
                   <td class="font-medium">{{ row.shipName }}</td>
                   <td><app-sync-badge [lastSyncAt]="row.lastSyncAt" /></td>
                   <td>{{ row.foConsumedMt | number:'1.1-1' }}</td>
                   <td>{{ row.doConsumedMt | number:'1.1-1' }}</td>
-                  <td>{{ row.avgSpeedKts != null ? (row.avgSpeedKts | number:'1.1-1') + ' kts' : '—' }}</td>
-                  <td><span class="badge badge-error">{{ row.mooring.red }}</span></td>
-                  <td><span class="badge badge-warning">{{ row.mooring.amber }}</span></td>
-                  <td><span class="badge badge-success">{{ row.mooring.green }}</span></td>
-                  <td class="text-base-content/60">{{ row.mooring.total }}</td>
+                  <td>{{ foPerDay(row) != null ? (foPerDay(row) | number:'1.1-1') : '—' }}</td>
+                  <td>{{ row.avgSpeedKts != null ? (row.avgSpeedKts | number:'1.1-1') : '—' }}</td>
+                  <td>
+                    <span class="badge badge-error badge-xs">{{ row.mooring.red }}</span>
+                    <span class="badge badge-warning badge-xs mx-1">{{ row.mooring.amber }}</span>
+                    <span class="badge badge-success badge-xs">{{ row.mooring.green }}</span>
+                  </td>
                 </tr>
+                @if (expandedShipId() === row.shipId) {
+                  <tr>
+                    <td colspan="8" class="bg-base-100/50 p-4">
+                      @if (noonLoading() === row.shipId) {
+                        <div class="flex justify-center py-4">
+                          <span class="loading loading-spinner loading-md"></span>
+                        </div>
+                      } @else {
+                        @let noonData = noonCache()[row.shipId];
+                        @if (noonData && noonData.length > 0) {
+                          <div class="text-sm text-base-content/60 mb-2">Noon Positions (last 30)</div>
+                          <table class="table table-xs">
+                            <thead>
+                              <tr>
+                                <th>Date</th>
+                                <th>Lat</th>
+                                <th>Lon</th>
+                                <th>Speed (kts)</th>
+                                <th>FO leg (MT)</th>
+                                <th>DO leg (MT)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (noon of noonData.slice(0, 30); track noon.noonDate) {
+                                <tr>
+                                  <td>{{ noon.noonDate | date:'dd/MM/yyyy' }}</td>
+                                  <td>{{ noon.latitude ?? '—' }}</td>
+                                  <td>{{ noon.longitude ?? '—' }}</td>
+                                  <td>{{ noon.speed ?? '—' }}</td>
+                                  <td>{{ noon.foConsumedMt != null ? (noon.foConsumedMt | number:'1.1-1') : '—' }}</td>
+                                  <td>{{ noon.doConsumedMt != null ? (noon.doConsumedMt | number:'1.1-1') : '—' }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        } @else {
+                          <p class="text-sm text-base-content/40">No noon positions available</p>
+                        }
+                      }
+                    </td>
+                  </tr>
+                }
               }
             </tbody>
           </table>

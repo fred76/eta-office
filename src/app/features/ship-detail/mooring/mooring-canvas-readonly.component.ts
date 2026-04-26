@@ -51,20 +51,19 @@ const TL_COLOR: Record<string, string> = {
   standalone: true,
   host: { style: 'display:block; height:100%' },
   template: `
-    <div class="rounded-xl border border-base-300 bg-white overflow-hidden h-full flex flex-col">
-      <!-- Section tabs -->
-      <div class="shrink-0 flex border-b border-base-300 text-xs font-semibold">
-        @for (s of sections; track s) {
+    <div class="rounded-xl border border-base-300 bg-white overflow-hidden h-full flex flex-col relative">
+      <!-- Floating section switcher -->
+      <div class="absolute top-2 left-2 z-10 flex rounded-lg overflow-hidden
+                  border border-sky-300 shadow-sm">
+        @for (s of sectionLabels; track s.key) {
           <button
-            class="flex-1 py-2 transition-colors"
-            [class]="
-              section() === s
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-100 text-base-content hover:bg-base-200'
-            "
-            (click)="section.set(s)"
-          >
-            {{ s.toUpperCase() }}
+            class="px-3 py-1 text-xs font-bold transition-colors"
+            [class.bg-sky-500]="section() === s.key"
+            [class.text-white]="section() === s.key"
+            [class.bg-white]="section() !== s.key"
+            [class.text-sky-600]="section() !== s.key"
+            (click)="section.set(s.key)">
+            {{ s.label }}
           </button>
         }
       </div>
@@ -594,6 +593,11 @@ export class MooringCanvasReadonlyComponent {
 
   section = signal<CanvasSection>('bow');
   sections: CanvasSection[] = ['bow', 'deck', 'aft'];
+  sectionLabels = [
+    { key: 'bow' as CanvasSection, label: 'BOW' },
+    { key: 'deck' as CanvasSection, label: 'DECK' },
+    { key: 'aft' as CanvasSection, label: 'AFT' },
+  ];
 
   visibleItems = computed(() =>
     this.items().filter((i) => (i.canvasSection ?? 'bow') === this.section()),

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.noonPositionsRelations = exports.syncReceiptsRelations = exports.mooringLatestRelations = exports.machineryLatestRelations = exports.rotationLatestRelations = exports.shipsRelations = exports.mooringLatest = exports.noonTemplates = exports.noonPositions = exports.machineryLatest = exports.rotationLatest = exports.syncReceipts = exports.officeUsers = exports.ships = void 0;
+exports.noonPositionsRelations = exports.syncReceiptsRelations = exports.sailingDirectionLatestRelations = exports.mooringLatestRelations = exports.machineryLatestRelations = exports.rotationLatestRelations = exports.shipsRelations = exports.sailingDirectionLatest = exports.mooringLatest = exports.noonTemplates = exports.noonPositions = exports.machineryLatest = exports.rotationLatest = exports.syncReceipts = exports.officeUsers = exports.ships = void 0;
 const sqlite_core_1 = require("drizzle-orm/sqlite-core");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.ships = (0, sqlite_core_1.sqliteTable)('ships', {
@@ -12,6 +12,8 @@ exports.ships = (0, sqlite_core_1.sqliteTable)('ships', {
     syncToken: (0, sqlite_core_1.text)('sync_token').notNull().unique(),
     lastSyncAt: (0, sqlite_core_1.text)('last_sync_at'),
     lastReceivedVersion: (0, sqlite_core_1.integer)('last_received_version').notNull().default(0),
+    active: (0, sqlite_core_1.integer)('active').notNull().default(1),
+    forceFullSync: (0, sqlite_core_1.integer)('forceFullSync').notNull().default(0),
     createdAt: (0, sqlite_core_1.text)('created_at').$defaultFn(() => new Date().toISOString()),
 });
 exports.officeUsers = (0, sqlite_core_1.sqliteTable)('office_users', {
@@ -61,6 +63,11 @@ exports.mooringLatest = (0, sqlite_core_1.sqliteTable)('mooring_latest', {
     items: (0, sqlite_core_1.text)('items', { mode: 'json' }).notNull(),
     lines: (0, sqlite_core_1.text)('lines', { mode: 'json' }).notNull(),
 });
+exports.sailingDirectionLatest = (0, sqlite_core_1.sqliteTable)('sailing_direction_latest', {
+    shipId: (0, sqlite_core_1.text)('ship_id').primaryKey().references(() => exports.ships.id),
+    snapshotAt: (0, sqlite_core_1.text)('snapshot_at'),
+    data: (0, sqlite_core_1.text)('data', { mode: 'json' }).$type().notNull(),
+});
 // Relations
 exports.shipsRelations = (0, drizzle_orm_1.relations)(exports.ships, ({ one, many }) => ({
     rotationLatest: one(exports.rotationLatest, { fields: [exports.ships.id], references: [exports.rotationLatest.shipId] }),
@@ -77,6 +84,9 @@ exports.machineryLatestRelations = (0, drizzle_orm_1.relations)(exports.machiner
 }));
 exports.mooringLatestRelations = (0, drizzle_orm_1.relations)(exports.mooringLatest, ({ one }) => ({
     ship: one(exports.ships, { fields: [exports.mooringLatest.shipId], references: [exports.ships.id] }),
+}));
+exports.sailingDirectionLatestRelations = (0, drizzle_orm_1.relations)(exports.sailingDirectionLatest, ({ one }) => ({
+    ship: one(exports.ships, { fields: [exports.sailingDirectionLatest.shipId], references: [exports.ships.id] }),
 }));
 exports.syncReceiptsRelations = (0, drizzle_orm_1.relations)(exports.syncReceipts, ({ one }) => ({
     ship: one(exports.ships, { fields: [exports.syncReceipts.shipId], references: [exports.ships.id] }),

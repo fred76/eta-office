@@ -5,6 +5,7 @@ exports.getShipSummary = getShipSummary;
 const client_1 = require("../db/client");
 async function getFleet() {
     const rows = await client_1.db.query.ships.findMany({
+        where: (s, { eq }) => eq(s.active, 1),
         with: {
             rotationLatest: true,
             mooringLatest: true,
@@ -18,6 +19,7 @@ async function getFleet() {
         flag: s.flag,
         vesselType: s.vesselType,
         lastSyncAt: s.lastSyncAt,
+        active: s.active,
         rotation: s.rotationLatest?.data ?? null,
         mooringRedCount: countMooringRed(s.mooringLatest?.lines),
     }));

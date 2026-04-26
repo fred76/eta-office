@@ -8,3 +8,35 @@
 2026-04-22 08:52:56: ETA Office server → http://0.0.0.0:4000
 2026-04-22 08:59:02: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
 2026-04-22 08:59:02: ETA Office server → http://0.0.0.0:4000
+2026-04-26 09:51:50: ◇ injected env (2) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+2026-04-26 09:51:50: ETA Office server → http://0.0.0.0:4000
+2026-04-26 09:55:54: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+2026-04-26 09:55:54: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:00:01: ◇ injected env (2) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+2026-04-26 11:00:01: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:00:13: ◇ injected env (2) from .env // tip: ⌘ suppress logs { quiet: true }
+2026-04-26 11:00:13: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:05:41: ◇ injected env (2) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+2026-04-26 11:05:42: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:06:01: ◇ injected env (2) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+2026-04-26 11:06:01: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:08:51: ◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+2026-04-26 11:08:52: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:09:00: ◇ injected env (2) from .env // tip: ⌘ suppress logs { quiet: true }
+2026-04-26 11:09:00: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:09:08: ◇ injected env (2) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+2026-04-26 11:09:08: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:11:24: ◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+2026-04-26 11:11:24: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:13:57: ◇ injected env (2) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+2026-04-26 11:13:57: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:14:16: ◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+2026-04-26 11:14:16: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:17:30: ◇ injected env (2) from .env // tip: ⌘ suppress logs { quiet: true }
+2026-04-26 11:17:30: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:26:04: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+2026-04-26 11:26:04: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:54:28: ◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+2026-04-26 11:54:28: ETA Office server → http://0.0.0.0:4000
+2026-04-26 11:54:40: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+2026-04-26 11:54:40: ETA Office server → http://0.0.0.0:4000

@@ -1,3 +1,12 @@
+<div class="flex items-center gap-2 px-3 py-2 bg-teal-700 text-white shrink-0">
+  <span class="material-icons text-xl">directions_boat</span>
+  <span class="font-bold text-sm">Voyage Monitoring</span>
+  <div class="flex-1"></div>
+  <button class="btn btn-xs btn-ghost text-white gap-1" (click)="exportExcel()">
+    <span class="material-icons text-sm">download</span>Export
+  </button>
+</div>
+
 <div class="p-4">
 
   <!-- Filters -->
@@ -11,7 +20,6 @@
     <span class="text-sm text-base-content/50 self-center">
       {{ filteredEntries().length }} entries
     </span>
-    <button class="btn btn-sm btn-outline" (click)="exportExcel()">Export Excel</button>
   </div>
 
   @if (shipSvc.$noon().length === 0) {

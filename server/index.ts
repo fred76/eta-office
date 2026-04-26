@@ -7,6 +7,7 @@ import { syncRouter } from './routes/sync.routes'
 import { fleetRouter } from './routes/fleet.routes'
 import { shipRouter } from './routes/ship.routes'
 import { reportsRouter } from './routes/reports.routes'
+import { adminRouter } from './routes/admin.routes'
 
 const app = express()
 
@@ -19,6 +20,7 @@ app.use('/api/sync',  syncRouter)
 app.use('/api/fleet', fleetRouter)
 app.use('/api/ship',    shipRouter)
 app.use('/api/reports', reportsRouter)
+app.use('/api/admin', adminRouter)
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'eta-office' }))
 

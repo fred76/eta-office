@@ -18,11 +18,15 @@ async function processSyncPayload(shipId, payload) {
     let success = false;
     let errorMsg;
     try {
-        // Version check (fromVersion=0 means full resync, always accepted)
+        // Check if admin requested a full sync for this ship
         if (payload.fromVersion !== 0) {
             const ship = await client_1.db.query.ships.findFirst({ where: (s, { eq }) => eq(s.id, shipId) });
             if (!ship)
                 throw new Error('Ship not found');
+            if (ship.forceFullSync) {
+                await client_1.db.update(schema_1.ships).set({ forceFullSync: 0 }).where((0, drizzle_orm_1.eq)(schema_1.ships.id, shipId));
+                throw new SyncVersionMismatchError(0, payload.fromVersion);
+            }
             if (payload.fromVersion !== ship.lastReceivedVersion) {
                 throw new SyncVersionMismatchError(ship.lastReceivedVersion, payload.fromVersion);
             }
@@ -68,6 +72,22 @@ async function processSyncPayload(shipId, payload) {
                 .onConflictDoUpdate({
                 target: schema_1.mooringLatest.shipId,
                 set: { items: payload.mooring.items, lines: payload.mooring.lines, snapshotAt: now },
+            });
+        }
+        // Sailing Direction
+        if (payload.sailingDirection) {
+            await client_1.db.insert(schema_1.sailingDirectionLatest)
+                .values({
+                shipId: shipId,
+                snapshotAt: now,
+                data: payload.sailingDirection.ports,
+            })
+                .onConflictDoUpdate({
+                target: schema_1.sailingDirectionLatest.shipId,
+                set: {
+                    snapshotAt: now,
+                    data: payload.sailingDirection.ports,
+                },
             });
         }
         // Update version + last_sync_at
