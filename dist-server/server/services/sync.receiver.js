@@ -90,9 +90,9 @@ async function processSyncPayload(shipId, payload) {
                 },
             });
         }
-        // Update version + last_sync_at
+        // Update version + last_sync_at, always clear forceFullSync on success
         await client_1.db.update(schema_1.ships)
-            .set({ lastSyncAt: now, lastReceivedVersion: payload.toVersion })
+            .set({ lastSyncAt: now, lastReceivedVersion: payload.toVersion, forceFullSync: 0 })
             .where((0, drizzle_orm_1.eq)(schema_1.ships.id, shipId));
         success = true;
     }

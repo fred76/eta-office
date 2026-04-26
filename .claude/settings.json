@@ -15,7 +15,15 @@
       "Bash(git -C /Users/albertolunardini/Developper/eta-office remote -v)",
       "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"SELECT id, name, lastSyncAt, forceFullSync FROM ships\")",
       "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"SELECT id, name, last_sync_at, forceFullSync FROM ships\")",
-      "Bash(grep -r \"signal\\\\|Signal\\\\|\\\\$[a-zA-Z]\" /Users/albertolunardini/Developper/ETA/src/app --include=\"*.ts\")"
+      "Bash(grep -r \"signal\\\\|Signal\\\\|\\\\$[a-zA-Z]\" /Users/albertolunardini/Developper/ETA/src/app --include=\"*.ts\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/eta-office/data/eta-office.db \"SELECT id, name, last_sync_at, forceFullSync, last_received_version FROM ships\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/ETA/data/eta.db \"SELECT * FROM sync_state\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/ETA/data/eta-ship.db \"SELECT * FROM sync_state\")",
+      "Bash(curl -s -H \"Authorization: Bearer ecc98ce5ee168f86b612bcca7762f3d2fc6eb307ff97e327c191195df4d8dc7b\" http://127.0.0.1:4000/api/sync/pending)",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/ETA/data/eta.db \"SELECT syncedAt, success, response FROM sync_log ORDER BY id DESC LIMIT 5\")",
+      "Bash(sqlite3 /Users/albertolunardini/Developper/ETA/data/eta.db \"SELECT syncedAt, success, response FROM sync_log ORDER BY id DESC LIMIT 3\")",
+      "Bash(awk '{print $1, $2, $9, $10, $11, $12}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/sync/trigger)"
     ],
     "additionalDirectories": [
       "/Users/albertolunardini/Developper/ETA"

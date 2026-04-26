@@ -50,3 +50,9 @@
 2026-04-26 13:11:10: ETA Office server → http://0.0.0.0:4000
 2026-04-26 13:19:44: ◇ injected env (2) from .env // tip: ⌘ enable debugging { debug: true }
 2026-04-26 13:19:44: ETA Office server → http://0.0.0.0:4000
+2026-04-26 13:31:28: ◇ injected env (2) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+2026-04-26 13:31:28: ETA Office server → http://0.0.0.0:4000
+2026-04-26 13:45:55: ◇ injected env (2) from .env // tip: ⌘ suppress logs { quiet: true }
+2026-04-26 13:45:55: ETA Office server → http://0.0.0.0:4000
+2026-04-26 13:49:11: ◇ injected env (2) from .env // tip: ⌘ override existing { override: true }
+2026-04-26 13:49:11: ETA Office server → http://0.0.0.0:4000

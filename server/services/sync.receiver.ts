@@ -96,9 +96,9 @@ export async function processSyncPayload(shipId: string, payload: SyncPayload): 
         })
     }
 
-    // Update version + last_sync_at
+    // Update version + last_sync_at, always clear forceFullSync on success
     await db.update(ships)
-      .set({ lastSyncAt: now, lastReceivedVersion: payload.toVersion })
+      .set({ lastSyncAt: now, lastReceivedVersion: payload.toVersion, forceFullSync: 0 })
       .where(eq(ships.id, shipId))
 
     success = true
