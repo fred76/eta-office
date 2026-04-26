@@ -65,6 +65,10 @@ exports.syncRouter.get('/info', (_req, res) => {
         env: process.env['NODE_ENV'] ?? 'development',
     });
 });
+exports.syncRouter.get('/pending', async (req, res) => {
+    const ship = req.ship;
+    res.json({ forceFullSync: ship.forceFullSync === 1 });
+});
 exports.syncRouter.post('/', syncLimiter, async (req, res, next) => {
     const ship = req.ship;
     const parsed = SyncPayloadSchema.safeParse(req.body);

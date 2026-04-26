@@ -65,6 +65,11 @@ syncRouter.get('/info', (_req, res) => {
   })
 })
 
+syncRouter.get('/pending', async (req, res) => {
+  const ship = (req as any).ship
+  res.json({ forceFullSync: ship.forceFullSync === 1 })
+})
+
 syncRouter.post('/', syncLimiter, async (req, res, next) => {
   const ship = (req as any).ship
   const parsed = SyncPayloadSchema.safeParse(req.body)

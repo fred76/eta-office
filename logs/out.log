@@ -46,3 +46,7 @@
 2026-04-26 12:04:09: ETA Office server → http://0.0.0.0:4000
 2026-04-26 12:58:08: ◇ injected env (2) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
 2026-04-26 12:58:08: ETA Office server → http://0.0.0.0:4000
+2026-04-26 13:11:10: ◇ injected env (2) from .env // tip: ⌘ enable debugging { debug: true }
+2026-04-26 13:11:10: ETA Office server → http://0.0.0.0:4000
+2026-04-26 13:19:44: ◇ injected env (2) from .env // tip: ⌘ enable debugging { debug: true }
+2026-04-26 13:19:44: ETA Office server → http://0.0.0.0:4000
